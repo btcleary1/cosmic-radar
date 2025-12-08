@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { User, LogOut, BarChart3, Bell, Wallet, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -25,21 +24,10 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-card border-b border-border backdrop-blur-sm bg-opacity-95">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Left: App Title with Mascot */}
+          {/* Left: App Title */}
           <div className="flex items-center space-x-3">
-            <div className="relative w-10 h-10 flex-shrink-0">
-              <Image
-                src="/mascot.png"
-                alt="Cosmic Radar Mascot"
-                width={40}
-                height={40}
-                className="object-contain"
-                unoptimized
-                priority
-              />
-            </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent">
-              Cosmic Radar
+              🚀 Cosmic Radar
             </h1>
           </div>
 
