@@ -8,6 +8,9 @@ import { prisma } from '@/lib/prisma';
 import { buildCompareResponse } from '@/lib/compare';
 import { getTodayUTC, parseDateString, getDaysAgo, formatDateString } from '@/lib/date';
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server';
 const CMC_API_KEY = process.env.CMC_API_KEY;
 const CMC_BASE_URL = 'https://pro-api.coinmarketcap.com/v1';
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

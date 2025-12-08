@@ -198,7 +198,7 @@ export async function fetchAltcoinSeasonIndex(): Promise<AltcoinSeasonIndex> {
     }
 
     const data = await response.json();
-    const indexValue = data.data.value;
+    const indexValue = data?.data?.value ?? 50;
 
     // Determine label based on value
     const label = indexValue >= 75 ? 'Altcoin Season' : 'Bitcoin Season';
