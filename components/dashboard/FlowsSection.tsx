@@ -1,17 +1,37 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CompareResponse } from '@/lib/compare';
+import { CompareResponse, emptyTierMovement } from '@/lib/compare';
 import TierMovementCards from './TierMovementCards';
 import GainersLosersPanel from './GainersLosersPanel';
 
 interface FlowsSectionProps {
-  compareData: CompareResponse;
+  compareData?: CompareResponse;
   onRefresh?: () => void;
 }
 
 export default function FlowsSection({ compareData, onRefresh }: FlowsSectionProps) {
   const [activeTier, setActiveTier] = useState<'t10' | 't50' | 't100' | 't200'>('t50');
+
+  // Safety check: if no data or no tiers, show error state
+  if (!compareData || !compareData.tiers) {
+    return (
+      <div className="card">
+        <h2 className="text-2xl font-bold mb-4">Flows & Movers</h2>
+        <p className="text-sm text-text-secondary">
+          Flows data is not available yet. Try refreshing the snapshot or check back later.
+        </p>
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            className="mt-4 px-4 py-2 bg-accent text-white rounded-lg hover:bg-opacity-90 transition-colors"
+          >
+            Refresh Snapshot
+          </button>
+        )}
+      </div>
+    );
+  }
 
   const tierLabels = {
     t10: 'Top 10',
@@ -54,14 +74,14 @@ export default function FlowsSection({ compareData, onRefresh }: FlowsSectionPro
 
       {/* Tier Movement Cards */}
       <TierMovementCards
-        tierMovement={compareData.tiers[activeTier]}
+        tierMovement={compareData.tiers?.[activeTier] ?? emptyTierMovement}
         tierLabel={tierLabels[activeTier]}
       />
 
       {/* Global Gainers & Losers */}
       <GainersLosersPanel
-        gainers={compareData.gainers}
-        losers={compareData.losers}
+        gainers={compareData.gainers ?? []}
+        losers={compareData.losers ?? []}
       />
     </div>
   );

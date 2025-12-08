@@ -25,6 +25,13 @@ export interface TierMovement {
   losers: CoinComparison[];
 }
 
+export const emptyTierMovement: TierMovement = {
+  entered: [],
+  left: [],
+  gainers: [],
+  losers: [],
+};
+
 export interface CompareResponse {
   date: string;
   previousDate: string | null;
@@ -112,12 +119,17 @@ export function buildCompareResponse(
     .filter((c) => c.rankChange !== null && c.rankChange < 0)
     .sort((a, b) => Math.abs(a.rankChange ?? 0) - Math.abs(b.rankChange ?? 0));
 
-  // Compute tier movements
+  // Compute tier movements with fallback
+  const t10 = computeTierMovement(comparisons, 1, 10);
+  const t50 = computeTierMovement(comparisons, 1, 50);
+  const t100 = computeTierMovement(comparisons, 1, 100);
+  const t200 = computeTierMovement(comparisons, 1, 200);
+
   const tiers = {
-    t10: computeTierMovement(comparisons, 1, 10),
-    t50: computeTierMovement(comparisons, 1, 50),
-    t100: computeTierMovement(comparisons, 1, 100),
-    t200: computeTierMovement(comparisons, 1, 200),
+    t10: t10 ?? emptyTierMovement,
+    t50: t50 ?? emptyTierMovement,
+    t100: t100 ?? emptyTierMovement,
+    t200: t200 ?? emptyTierMovement,
   };
 
   return {
