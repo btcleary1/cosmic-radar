@@ -1,0 +1,9 @@
+{
+  "buildCommand": "prisma generate && next build",
+  "crons": [
+    {
+      "path": "/api/snapshots/today",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

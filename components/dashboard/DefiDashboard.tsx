@@ -1,0 +1,262 @@
+'use client';
+
+import React from 'react';
+import { TrendingUp, TrendingDown, Activity, Lock, Zap } from 'lucide-react';
+
+interface DexProtocol {
+  name: string;
+  displayName: string;
+  totalVolume24h?: number;
+  change_1d?: number;
+  chains: string[];
+  logo?: string;
+}
+
+interface Protocol {
+  name: string;
+  tvl: number;
+  change_1d: number;
+  chain: string;
+  logo: string;
+  category: string;
+}
+
+interface DefiDashboardProps {
+  dexData: {
+    totalVolume24h: number;
+    change_1d: number;
+    topProtocols: DexProtocol[];
+  };
+  tvlData: {
+    total: number;
+    topProtocols: Protocol[];
+  };
+}
+
+function formatLargeNumber(num: number): string {
+  if (num >= 1e12) return `$${(num / 1e12).toFixed(2)}T`;
+  if (num >= 1e9) return `$${(num / 1e9).toFixed(2)}B`;
+  if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`;
+  return `$${num.toFixed(2)}`;
+}
+
+export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) {
+  return (
+    <div className="space-y-6">
+      {/* DeFi Metrics Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Total DEX Volume */}
+        <div className="card">
+          <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
+            <Activity className="w-4 h-4" />
+            <span>Total DEX Volume (24h)</span>
+          </div>
+          <div className="text-2xl font-bold">{formatLargeNumber(dexData.totalVolume24h)}</div>
+          <div className={`flex items-center gap-1 text-sm mt-2 ${
+            dexData.change_1d >= 0 ? 'text-positive' : 'text-negative'
+          }`}>
+            {dexData.change_1d >= 0 ? (
+              <TrendingUp className="w-4 h-4" />
+            ) : (
+              <TrendingDown className="w-4 h-4" />
+            )}
+            <span>{Math.abs(dexData.change_1d).toFixed(2)}%</span>
+          </div>
+        </div>
+
+        {/* Total TVL */}
+        <div className="card">
+          <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
+            <Lock className="w-4 h-4" />
+            <span>Total Value Locked</span>
+          </div>
+          <div className="text-2xl font-bold">{formatLargeNumber(tvlData.total)}</div>
+          <div className="text-sm text-text-secondary mt-2">Across all protocols</div>
+        </div>
+
+        {/* Active Protocols */}
+        <div className="card">
+          <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
+            <Zap className="w-4 h-4" />
+            <span>Active Protocols</span>
+          </div>
+          <div className="text-2xl font-bold">{tvlData.topProtocols.length}+</div>
+          <div className="text-sm text-text-secondary mt-2">Top DeFi protocols</div>
+        </div>
+      </div>
+
+      {/* Top DEX Protocols */}
+      <div className="card">
+        <h2 className="text-xl font-bold mb-4">Top DEX Protocols by Volume (24h)</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left py-3 px-4 text-text-secondary font-medium">#</th>
+                <th className="text-center py-3 px-4 text-text-secondary font-medium">24h</th>
+                <th className="text-left py-3 px-4 text-text-secondary font-medium">Protocol</th>
+                <th className="text-right py-3 px-4 text-text-secondary font-medium">Volume (24h)</th>
+                <th className="text-right py-3 px-4 text-text-secondary font-medium">Change</th>
+                <th className="text-left py-3 px-4 text-text-secondary font-medium">Chains</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dexData.topProtocols.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-text-secondary">
+                    <div className="flex flex-col items-center gap-2">
+                      <Activity className="w-8 h-8 animate-pulse" />
+                      <p>Loading DEX protocols data...</p>
+                      <p className="text-sm">Fetching from DeFi Llama API</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                dexData.topProtocols.map((protocol, index) => {
+                  const change = protocol.change_1d || 0;
+                  const isPositive = change >= 0;
+                  
+                  return (
+                    <tr key={protocol.name} className="border-b border-border hover:bg-background transition-colors">
+                      <td className="py-3 px-4 text-text-secondary">{index + 1}</td>
+                      <td className="py-3 px-4">
+                        <div className="flex justify-center">
+                          {change !== 0 && (
+                            <div className={`flex items-center justify-center w-12 h-6 rounded ${
+                              isPositive ? 'bg-positive/10' : 'bg-negative/10'
+                            }`}>
+                              {isPositive ? (
+                                <TrendingUp className={`w-4 h-4 text-positive`} />
+                              ) : (
+                                <TrendingDown className={`w-4 h-4 text-negative`} />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          {protocol.logo && (
+                            <img src={protocol.logo} alt={protocol.displayName} className="w-6 h-6 rounded-full" />
+                          )}
+                          <span className="font-medium">{protocol.displayName}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-right font-semibold">
+                        {formatLargeNumber(protocol.totalVolume24h || 0)}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <span className={isPositive ? 'text-positive' : 'text-negative'}>
+                          {change !== 0 ? `${change > 0 ? '+' : ''}${change.toFixed(2)}%` : 'N/A'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex flex-wrap gap-1">
+                          {protocol.chains.slice(0, 3).map(chain => (
+                            <span key={chain} className="text-xs px-2 py-1 bg-background rounded-full">
+                              {chain}
+                            </span>
+                          ))}
+                          {protocol.chains.length > 3 && (
+                            <span className="text-xs px-2 py-1 bg-background rounded-full">
+                              +{protocol.chains.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Top Protocols by TVL */}
+      <div className="card">
+        <h2 className="text-xl font-bold mb-4">Top Protocols by Total Value Locked</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left py-3 px-4 text-text-secondary font-medium">#</th>
+                <th className="text-center py-3 px-4 text-text-secondary font-medium">24h</th>
+                <th className="text-left py-3 px-4 text-text-secondary font-medium">Protocol</th>
+                <th className="text-right py-3 px-4 text-text-secondary font-medium">TVL</th>
+                <th className="text-right py-3 px-4 text-text-secondary font-medium">TVL Change</th>
+                <th className="text-left py-3 px-4 text-text-secondary font-medium">Chain</th>
+                <th className="text-left py-3 px-4 text-text-secondary font-medium">Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tvlData.topProtocols.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-text-secondary">
+                    <div className="flex flex-col items-center gap-2">
+                      <Lock className="w-8 h-8 animate-pulse" />
+                      <p>Loading TVL data...</p>
+                      <p className="text-sm">Fetching from DeFi Llama API</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                tvlData.topProtocols.map((protocol, index) => {
+                  const change = protocol.change_1d;
+                  const isPositive = change >= 0;
+                
+                return (
+                  <tr key={protocol.name} className="border-b border-border hover:bg-background transition-colors">
+                    <td className="py-3 px-4 text-text-secondary">{index + 1}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex justify-center">
+                        {change !== 0 && (
+                          <div className={`flex items-center justify-center w-12 h-6 rounded ${
+                            isPositive ? 'bg-positive/10' : 'bg-negative/10'
+                          }`}>
+                            {isPositive ? (
+                              <TrendingUp className={`w-4 h-4 text-positive`} />
+                            ) : (
+                              <TrendingDown className={`w-4 h-4 text-negative`} />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        {protocol.logo && (
+                          <img src={protocol.logo} alt={protocol.name} className="w-6 h-6 rounded-full" />
+                        )}
+                        <span className="font-medium">{protocol.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-right font-semibold">
+                      {formatLargeNumber(protocol.tvl)}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className={isPositive ? 'text-positive' : 'text-negative'}>
+                        {change > 0 ? '+' : ''}{change.toFixed(2)}%
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="text-xs px-2 py-1 bg-background rounded-full">
+                        {protocol.chain}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="text-xs px-2 py-1 bg-accent/10 text-accent rounded-full">
+                        {protocol.category}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
