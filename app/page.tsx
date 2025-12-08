@@ -89,13 +89,20 @@ async function getDefiData() {
 
 export default async function Home() {
   try {
-    // First, ensure snapshot exists
-    await ensureTodaySnapshot();
+    // Try to ensure snapshot exists, but don't block if it fails
+    try {
+      await ensureTodaySnapshot();
+    } catch (snapshotError) {
+      console.warn('Failed to ensure snapshot, continuing anyway:', snapshotError);
+    }
     
     // Then fetch global metrics, compare data, news, and DeFi data in parallel
     const [globalMetrics, compareData, newsData, defiData] = await Promise.all([
       getGlobalMetrics(),
-      getCompareData(),
+      getCompareData().catch(err => {
+        console.warn('Compare data failed, using empty data:', err);
+        return { topGainers: [], topLosers: [], tierMovements: { tier1to50: [], tier51to100: [], tier101to150: [], tier151to200: [] } };
+      }),
       getNews(),
       getDefiData(),
     ]);
