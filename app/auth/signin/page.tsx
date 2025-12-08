@@ -2,6 +2,8 @@
 
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
 export default function SignInPage() {
@@ -23,8 +25,19 @@ export default function SignInPage() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="card max-w-md w-full">
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="relative w-24 h-24">
+              <Image
+                src="/mascot.png"
+                alt="Cosmic Radar Mascot"
+                width={96}
+                height={96}
+                className="object-contain"
+              />
+            </div>
+          </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent mb-2">
-            Welcome to Flow Radar
+            Welcome to Cosmic Radar
           </h1>
           <p className="text-text-secondary">
             Sign in to access watchlists, alerts, and more
