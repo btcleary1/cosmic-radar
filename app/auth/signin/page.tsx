@@ -33,6 +33,8 @@ export default function SignInPage() {
                 width={96}
                 height={96}
                 className="object-contain"
+                unoptimized
+                priority
               />
             </div>
           </div>

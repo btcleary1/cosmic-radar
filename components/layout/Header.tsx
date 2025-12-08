@@ -34,6 +34,8 @@ export default function Header() {
                 width={40}
                 height={40}
                 className="object-contain"
+                unoptimized
+                priority
               />
             </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent">
