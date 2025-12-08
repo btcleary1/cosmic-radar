@@ -10,7 +10,7 @@ if (!CMC_API_KEY) {
   console.warn('Warning: CMC_API_KEY is not set in environment variables');
 }
 
-interface CMCHeaders {
+interface CMCHeaders extends Record<string, string> {
   'X-CMC_PRO_API_KEY': string;
   'Accept': string;
 }
