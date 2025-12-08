@@ -24,7 +24,13 @@ export default function SignInPage() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="card max-w-md w-full">
         <div className="text-center mb-8">
-          <div className="text-6xl mb-4">🚀</div>
+          <div className="flex justify-center mb-4">
+            <div 
+              className="w-24 h-24 bg-contain bg-center bg-no-repeat"
+              style={{ backgroundImage: 'url(/mascot.png)' }}
+              aria-label="Cosmic Radar Mascot"
+            />
+          </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent mb-2">
             Welcome to Cosmic Radar
           </h1>
