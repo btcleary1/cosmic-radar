@@ -27,7 +27,7 @@ export default function Header() {
           {/* Left: App Title */}
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent">
-              Flow Radar
+              Cosmic Radar
             </h1>
           </div>
 

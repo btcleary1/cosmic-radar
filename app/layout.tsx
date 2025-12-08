@@ -3,8 +3,8 @@ import './globals.css';
 import SessionProvider from '@/components/providers/SessionProvider';
 
 export const metadata: Metadata = {
-  title: 'Flow Radar - Crypto Dashboard',
-  description: 'Track the top 200 cryptocurrencies with daily rank movements and market insights',
+  title: 'Cosmic Radar - Crypto & DeFi Dashboard',
+  description: 'Track the top 200 cryptocurrencies, DeFi protocols, and market insights with real-time data from CoinMarketCap and DeFi Llama',
 };
 
 export default function RootLayout({
