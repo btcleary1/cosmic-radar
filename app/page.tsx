@@ -3,8 +3,21 @@ import MetricsRow from '@/components/dashboard/MetricsRow';
 import NewsTicker from '@/components/dashboard/NewsTicker';
 import DashboardContainer from '@/components/dashboard/DashboardContainer';
 
+function getBaseUrl() {
+  // For Vercel deployment
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  // For custom domain or NEXT_PUBLIC_BASE_URL
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+  // For local development
+  return 'http://localhost:3000';
+}
+
 async function getGlobalMetrics() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = getBaseUrl();
   const res = await fetch(`${baseUrl}/api/global`, {
     cache: 'no-store',
   });
@@ -17,13 +30,15 @@ async function getGlobalMetrics() {
 }
 
 async function ensureTodaySnapshot() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = getBaseUrl();
   const res = await fetch(`${baseUrl}/api/snapshots/today`, {
     method: 'POST',
     cache: 'no-store',
   });
 
   if (!res.ok) {
+    const errorText = await res.text();
+    console.error('Snapshot creation failed:', errorText);
     throw new Error('Failed to ensure today snapshot');
   }
 
@@ -31,12 +46,14 @@ async function ensureTodaySnapshot() {
 }
 
 async function getCompareData() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = getBaseUrl();
   const res = await fetch(`${baseUrl}/api/snapshots/compare?date=today`, {
     cache: 'no-store',
   });
 
   if (!res.ok) {
+    const errorText = await res.text();
+    console.error('Compare data fetch failed:', errorText);
     throw new Error('Failed to fetch compare data');
   }
 
@@ -44,7 +61,7 @@ async function getCompareData() {
 }
 
 async function getNews() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = getBaseUrl();
   try {
     const res = await fetch(`${baseUrl}/api/news`, {
       cache: 'no-store',
@@ -63,7 +80,7 @@ async function getNews() {
 }
 
 async function getDefiData() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = getBaseUrl();
   try {
     const res = await fetch(`${baseUrl}/api/defi/overview`, {
       cache: 'no-store',
