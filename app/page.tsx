@@ -108,31 +108,64 @@ export default async function Home() {
   try {
     // Try to ensure snapshot exists, but don't block if it fails
     try {
-      await ensureTodaySnapshot();
+      await Promise.race([
+        ensureTodaySnapshot(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Snapshot timeout')), 8000))
+      ]);
     } catch (snapshotError) {
       console.warn('Failed to ensure snapshot, continuing anyway:', snapshotError);
     }
     
-    // Then fetch global metrics, compare data, news, and DeFi data in parallel
+    // Then fetch global metrics, compare data, news, and DeFi data in parallel with timeout
     const [globalMetrics, compareData, newsData, defiData] = await Promise.all([
-      getGlobalMetrics().catch(err => {
+      Promise.race([
+        getGlobalMetrics(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Global metrics timeout')), 8000))
+      ]).catch(err => {
         console.warn('Global metrics failed, using fallback:', err);
         return {
           marketCap: 0,
           volume24h: 0,
           btcDominance: 0,
-          fearGreed: 50,
-          altcoinSeason: 50,
+          fearGreed: { value: 50, label: 'Neutral' },
+          altcoinSeason: { value: 50, label: 'Neutral' },
           marketCapChange24h: 0,
           volumeChange24h: 0,
         };
       }),
-      getCompareData().catch(err => {
+      Promise.race([
+        getCompareData(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Compare data timeout')), 8000))
+      ]).catch(err => {
         console.warn('Compare data failed, using empty data:', err);
-        return { topGainers: [], topLosers: [], tierMovements: { tier1to50: [], tier51to100: [], tier101to150: [], tier151to200: [] } };
+        const today = new Date().toISOString().split('T')[0];
+        return {
+          date: today,
+          previousDate: null,
+          top200Today: [],
+          newTop200: [],
+          droppedFromTop200: [],
+          gainers: [],
+          losers: [],
+          tiers: {
+            t10: { inflow: [], outflow: [], stable: [] },
+            t50: { inflow: [], outflow: [], stable: [] },
+            t100: { inflow: [], outflow: [], stable: [] },
+            t200: { inflow: [], outflow: [], stable: [] },
+          },
+        };
       }),
-      getNews(),
-      getDefiData(),
+      Promise.race([
+        getNews(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('News timeout')), 5000))
+      ]).catch(() => ({ news: [] })),
+      Promise.race([
+        getDefiData(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('DeFi timeout')), 8000))
+      ]).catch(() => ({
+        dex: { totalVolume24h: 0, change_1d: 0, topProtocols: [] },
+        tvl: { total: 0, topProtocols: [] },
+      })),
     ]);
 
     return (
