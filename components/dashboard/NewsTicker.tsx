@@ -34,10 +34,6 @@ export default function NewsTicker({ news }: NewsTickerProps) {
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => {
-                e.preventDefault();
-                window.open(item.url, '_blank', 'noopener,noreferrer');
-              }}
               className="flex-shrink-0 mx-6 group cursor-pointer"
             >
               <div className="flex items-center space-x-3">

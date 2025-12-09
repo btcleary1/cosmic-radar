@@ -56,8 +56,8 @@ export interface Protocol {
  */
 export async function fetchDexOverview(): Promise<DexOverview> {
   try {
-    console.log('Fetching from:', `${DEFILLAMA_BASE_URL}/overview/dexs`);
-    const response = await fetch(`${DEFILLAMA_BASE_URL}/overview/dexs`, {
+    console.log('Fetching from:', `${DEFILLAMA_BASE_URL}/overview/dexs?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true&dataType=dailyVolume`);
+    const response = await fetch(`${DEFILLAMA_BASE_URL}/overview/dexs?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true&dataType=dailyVolume`, {
       next: { revalidate: 300 }, // Cache for 5 minutes
       headers: {
         'Accept': 'application/json',
@@ -73,19 +73,41 @@ export async function fetchDexOverview(): Promise<DexOverview> {
     }
 
     const data = await response.json();
-    console.log('DEX overview full data structure:', JSON.stringify(data).substring(0, 500));
-    console.log('DEX overview data sample:', {
-      totalVolume24h: data.totalVolume24h,
-      totalDataChart: data.totalDataChart?.length,
-      totalDataChartBreakdown: data.totalDataChartBreakdown?.length,
-      protocols: data.protocols?.length,
-      allChains: data.allChains?.length
+    
+    // Calculate total volume from protocols
+    let totalVolume24h = 0;
+    let totalVolume7d = 0;
+    
+    const protocols = (data.protocols || []).map((p: any) => {
+      const vol24h = p.total24h || 0;
+      const vol7d = p.total7d || 0;
+      totalVolume24h += vol24h;
+      totalVolume7d += vol7d;
+      
+      return {
+        name: p.name || p.module || '',
+        displayName: p.displayName || p.name || p.module || '',
+        disabled: p.disabled || false,
+        logo: p.logo,
+        chains: p.chains || [],
+        totalVolume24h: vol24h,
+        totalVolume7d: vol7d,
+        change_1d: p.change_1d || 0,
+        change_7d: p.change_7d || 0,
+        change_1m: p.change_1m || 0,
+      };
+    });
+    
+    console.log('Parsed DEX data:', {
+      totalVolume24h,
+      protocolsCount: protocols.length,
+      topProtocol: protocols[0]?.name
     });
     
     return {
-      protocols: data.protocols || [],
-      totalVolume24h: data.totalVolume24h || 0,
-      totalVolume7d: data.totalVolume7d || 0,
+      protocols,
+      totalVolume24h,
+      totalVolume7d,
       change_1d: data.change_1d || 0,
       change_7d: data.change_7d || 0,
     };

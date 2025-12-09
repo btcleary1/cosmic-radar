@@ -5,8 +5,9 @@
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { buildCompareResponse } from '@/lib/compare';
+import { buildCompareResponse, buildLiveFallbackResponse } from '@/lib/compare';
 import { getTodayUTC, parseDateString, getDaysAgo, formatDateString } from '@/lib/date';
+import { fetchTop200Listings } from '@/lib/cmcClient';
 
 // Mark this route as dynamic
 export const dynamic = 'force-dynamic';
@@ -37,14 +38,23 @@ export async function GET(request: Request) {
       include: { coins: true },
     });
 
+    // FALLBACK: If no snapshot exists, fetch live data from CMC
     if (!todaySnapshot) {
-      return NextResponse.json(
-        {
-          error: `No snapshot found for ${formatDateString(targetDate)}`,
-          suggestion: 'Call POST /api/snapshots/today to create a snapshot',
-        },
-        { status: 404 }
-      );
+      console.log('No snapshot found, fetching live CMC data as fallback');
+      try {
+        const liveListings = await fetchTop200Listings();
+        const fallbackResponse = buildLiveFallbackResponse(liveListings, targetDate);
+        return NextResponse.json(fallbackResponse);
+      } catch (liveError) {
+        console.error('Failed to fetch live CMC data:', liveError);
+        return NextResponse.json(
+          {
+            error: `No snapshot found for ${formatDateString(targetDate)}`,
+            suggestion: 'Call POST /api/snapshots/today to create a snapshot',
+          },
+          { status: 404 }
+        );
+      }
     }
 
     // Find previous snapshot (yesterday or closest before)

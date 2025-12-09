@@ -95,7 +95,7 @@ a {
 }
 
 .animate-scroll-news {
-  animation: scroll-news 60s linear infinite;
+  animation: scroll-news 18s linear infinite;
 }
 
 .pause-animation:hover {

@@ -192,3 +192,41 @@ function computeTierMovement(
     losers,
   };
 }
+
+/**
+ * Build a fallback response from live CMC data when no snapshot exists
+ * This ensures Top 200 table always has data to display
+ */
+export function buildLiveFallbackResponse(
+  liveListings: any[],
+  targetDate: Date
+): CompareResponse {
+  const top200Today: CoinComparison[] = liveListings.map((coin) => ({
+    cmcId: coin.id,
+    name: coin.name,
+    symbol: coin.symbol,
+    todayRank: coin.cmc_rank,
+    yesterdayRank: null, // No historical data
+    todayPrice: coin.price,
+    todayMarketCap: coin.market_cap,
+    todayVolume24h: coin.volume_24h,
+    todayChange24h: coin.percent_change_24h,
+    rankChange: null, // No historical data
+  }));
+
+  return {
+    date: targetDate.toISOString().split('T')[0],
+    previousDate: null,
+    top200Today,
+    newTop200: [],
+    droppedTop200: [],
+    gainers: [],
+    losers: [],
+    tiers: {
+      t10: emptyTierMovement,
+      t50: emptyTierMovement,
+      t100: emptyTierMovement,
+      t200: emptyTierMovement,
+    },
+  };
+}

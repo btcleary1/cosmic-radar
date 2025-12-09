@@ -33,6 +33,31 @@ export default function FlowsSection({ compareData, onRefresh }: FlowsSectionPro
     );
   }
 
+  // Check if we have historical data
+  const hasHistoricalData = compareData.previousDate !== null;
+  
+  if (!hasHistoricalData) {
+    return (
+      <div className="card">
+        <h2 className="text-2xl font-bold mb-4">Gainers & Losers</h2>
+        <p className="text-sm text-text-secondary mb-2">
+          📊 Flows data will appear after at least two days of snapshots.
+        </p>
+        <p className="text-xs text-text-secondary">
+          Top 200 rankings are live above. Check back tomorrow to see gainers, losers, and tier movements!
+        </p>
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            className="mt-4 px-4 py-2 bg-accent text-white rounded-lg hover:bg-opacity-90 transition-colors"
+          >
+            Refresh Snapshot
+          </button>
+        )}
+      </div>
+    );
+  }
+
   const tierLabels = {
     t10: 'Top 10',
     t50: 'Top 50',
