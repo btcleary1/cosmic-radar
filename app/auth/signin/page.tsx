@@ -4,18 +4,98 @@ import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Mail, Lock, User } from 'lucide-react';
+
+type AuthMode = 'signin' | 'register';
 
 export default function SignInPage() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const [mode, setMode] = useState<AuthMode>('signin');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
+    setError('');
     try {
-      await signIn('google', { callbackUrl });
+      const result = await signIn('google', { callbackUrl, redirect: true });
+      if (result?.error) {
+        setError('Failed to sign in with Google');
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error('Sign in error:', error);
+      setError('An error occurred during sign in');
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Invalid email or password');
+        setIsLoading(false);
+      } else {
+        window.location.href = callbackUrl;
+      }
+    } catch (error) {
+      console.error('Sign in error:', error);
+      setError('An error occurred during sign in');
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Registration failed');
+        setIsLoading(false);
+        return;
+      }
+
+      // Auto sign in after successful registration
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Account created but sign in failed. Please try signing in manually.');
+        setMode('signin');
+        setIsLoading(false);
+      } else {
+        window.location.href = callbackUrl;
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setError('An error occurred during registration');
       setIsLoading(false);
     }
   };
@@ -32,12 +112,52 @@ export default function SignInPage() {
             />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent mb-2">
-            Welcome to Cosmic Radar
+            {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
           </h1>
           <p className="text-text-secondary">
-            Sign in to access watchlists, alerts, and more
+            {mode === 'signin' 
+              ? 'Sign in to access watchlists, alerts, and more'
+              : 'Join Cosmic Radar to track your crypto portfolio'
+            }
           </p>
         </div>
+
+        {/* Mode Toggle */}
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => {
+              setMode('signin');
+              setError('');
+            }}
+            className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
+              mode === 'signin'
+                ? 'bg-accent text-white'
+                : 'bg-background text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            Sign In
+          </button>
+          <button
+            onClick={() => {
+              setMode('register');
+              setError('');
+            }}
+            className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
+              mode === 'register'
+                ? 'bg-accent text-white'
+                : 'bg-background text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            Register
+          </button>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-negative/10 border border-negative/20 rounded-lg text-negative text-sm">
+            {error}
+          </div>
+        )}
 
         <div className="space-y-4">
           {/* Google Sign In */}
@@ -64,7 +184,7 @@ export default function SignInPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            {isLoading ? 'Signing in...' : 'Continue with Google'}
+            {isLoading ? 'Processing...' : 'Continue with Google'}
           </button>
 
           {/* Divider */}
@@ -73,30 +193,81 @@ export default function SignInPage() {
               <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-card text-text-secondary">Coming Soon</span>
+              <span className="px-2 bg-card text-text-secondary">Or continue with email</span>
             </div>
           </div>
 
-          {/* Placeholder buttons */}
-          <button
-            disabled
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-background text-text-secondary rounded-lg border border-border cursor-not-allowed opacity-50"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 22C6.486 22 2 17.514 2 12S6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/>
-            </svg>
-            Connect MetaMask Wallet
-          </button>
+          {/* Email/Password Form */}
+          <form onSubmit={mode === 'signin' ? handleEmailSignIn : handleRegister} className="space-y-4">
+            {mode === 'register' && (
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium mb-2">
+                  Name (optional)
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your name"
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-text-primary"
+                  />
+                </div>
+              </div>
+            )}
 
-          <button
-            disabled
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-background text-text-secondary rounded-lg border border-border cursor-not-allowed opacity-50"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 22C6.486 22 2 17.514 2 12S6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/>
-            </svg>
-            Connect Phantom Wallet
-          </button>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium mb-2">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="you@example.com"
+                  className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-text-primary"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-text-primary"
+                />
+              </div>
+              {mode === 'register' && (
+                <p className="mt-1 text-xs text-text-secondary">
+                  Must be at least 6 characters
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Processing...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
+            </button>
+          </form>
         </div>
 
         <div className="mt-6 text-center text-sm text-text-secondary">
