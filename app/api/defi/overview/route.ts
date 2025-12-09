@@ -6,6 +6,8 @@
 import { NextResponse } from 'next/server';
 import { fetchDexOverview, fetchProtocolsTVL } from '@/lib/defiLlamaClient';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     console.log('Fetching DeFi data from DeFi Llama...');

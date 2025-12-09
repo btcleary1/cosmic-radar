@@ -6,6 +6,8 @@
 import { NextResponse } from 'next/server';
 import { fetchCryptoNews } from '@/lib/cryptoPanicClient';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const news = await fetchCryptoNews(30); // Fetch 30 news items for ticker

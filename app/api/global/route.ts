@@ -10,6 +10,8 @@ import {
   fetchAltcoinSeasonIndex,
 } from '@/lib/cmcClient';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const [globalMetrics, fearGreed, altcoinSeason] = await Promise.all([
