@@ -9,7 +9,7 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST() {
+async function resetTables() {
   try {
     console.log('Dropping snapshot tables...');
     
@@ -69,4 +69,12 @@ export async function POST() {
       { status: 500 }
     );
   }
+}
+
+export async function POST() {
+  return resetTables();
+}
+
+export async function GET() {
+  return resetTables();
 }
