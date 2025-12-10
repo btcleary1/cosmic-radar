@@ -3,6 +3,9 @@ import MetricsRow from '@/components/dashboard/MetricsRow';
 import NewsTicker from '@/components/dashboard/NewsTicker';
 import DashboardContainer from '@/components/dashboard/DashboardContainer';
 
+// Force dynamic rendering to always fetch fresh data
+export const dynamic = 'force-dynamic';
+
 function getBaseUrl() {
   // For Vercel deployment
   if (process.env.VERCEL_URL) {
