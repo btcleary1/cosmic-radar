@@ -12,6 +12,7 @@ export interface NewsItem {
   source: {
     title: string;
     domain: string;
+    url?: string;
   };
   published_at: string;
   kind: 'news' | 'media';
@@ -23,6 +24,9 @@ export interface NewsItem {
     positive: number;
     negative: number;
     important: number;
+  };
+  metadata?: {
+    description?: string;
   };
 }
 
@@ -74,6 +78,7 @@ export async function fetchCryptoNews(
 
 /**
  * Get placeholder news items when API is not available
+ * Note: These use real news site URLs as examples
  */
 function getPlaceholderNews(): NewsItem[] {
   const now = new Date().toISOString();
@@ -81,8 +86,8 @@ function getPlaceholderNews(): NewsItem[] {
     {
       id: 1,
       title: 'Bitcoin Reaches New All-Time High as Institutional Adoption Grows',
-      url: '#',
-      source: { title: 'CryptoNews', domain: 'cryptonews.com' },
+      url: 'https://www.coindesk.com/markets/bitcoin/',
+      source: { title: 'CoinDesk', domain: 'coindesk.com' },
       published_at: now,
       kind: 'news',
       currencies: [{ code: 'BTC', title: 'Bitcoin' }],
@@ -91,8 +96,8 @@ function getPlaceholderNews(): NewsItem[] {
     {
       id: 2,
       title: 'Ethereum 2.0 Upgrade Shows Promising Results in Network Efficiency',
-      url: '#',
-      source: { title: 'DeFi Daily', domain: 'defidaily.com' },
+      url: 'https://www.theblock.co/latest',
+      source: { title: 'The Block', domain: 'theblock.co' },
       published_at: now,
       kind: 'news',
       currencies: [{ code: 'ETH', title: 'Ethereum' }],
@@ -101,8 +106,8 @@ function getPlaceholderNews(): NewsItem[] {
     {
       id: 3,
       title: 'Major Exchange Announces Support for New Altcoins',
-      url: '#',
-      source: { title: 'Crypto Insider', domain: 'cryptoinsider.com' },
+      url: 'https://cointelegraph.com/news',
+      source: { title: 'Cointelegraph', domain: 'cointelegraph.com' },
       published_at: now,
       kind: 'news',
       votes: { positive: 80, negative: 20, important: 40 },
@@ -110,8 +115,8 @@ function getPlaceholderNews(): NewsItem[] {
     {
       id: 4,
       title: 'DeFi Protocol Launches Innovative Yield Farming Strategy',
-      url: '#',
-      source: { title: 'Blockchain Times', domain: 'blockchaintimes.com' },
+      url: 'https://decrypt.co/news',
+      source: { title: 'Decrypt', domain: 'decrypt.co' },
       published_at: now,
       kind: 'news',
       votes: { positive: 90, negative: 15, important: 50 },
@@ -119,8 +124,8 @@ function getPlaceholderNews(): NewsItem[] {
     {
       id: 5,
       title: 'Regulatory Framework Brings Clarity to Crypto Markets',
-      url: '#',
-      source: { title: 'Financial Crypto', domain: 'financialcrypto.com' },
+      url: 'https://www.bloomberg.com/crypto',
+      source: { title: 'Bloomberg', domain: 'bloomberg.com' },
       published_at: now,
       kind: 'news',
       votes: { positive: 60, negative: 40, important: 70 },
@@ -128,8 +133,8 @@ function getPlaceholderNews(): NewsItem[] {
     {
       id: 6,
       title: 'NFT Marketplace Reports Record Trading Volume',
-      url: '#',
-      source: { title: 'NFT News', domain: 'nftnews.com' },
+      url: 'https://nftnow.com/news/',
+      source: { title: 'NFT Now', domain: 'nftnow.com' },
       published_at: now,
       kind: 'news',
       votes: { positive: 100, negative: 10, important: 45 },
@@ -137,8 +142,8 @@ function getPlaceholderNews(): NewsItem[] {
     {
       id: 7,
       title: 'Layer 2 Solutions Gain Traction as Gas Fees Drop',
-      url: '#',
-      source: { title: 'Crypto Tech', domain: 'cryptotech.com' },
+      url: 'https://www.coindesk.com/tech/',
+      source: { title: 'CoinDesk', domain: 'coindesk.com' },
       published_at: now,
       kind: 'news',
       currencies: [{ code: 'ETH', title: 'Ethereum' }],
@@ -147,8 +152,8 @@ function getPlaceholderNews(): NewsItem[] {
     {
       id: 8,
       title: 'Stablecoin Adoption Surges in Emerging Markets',
-      url: '#',
-      source: { title: 'Global Crypto', domain: 'globalcrypto.com' },
+      url: 'https://www.theblock.co/stablecoins',
+      source: { title: 'The Block', domain: 'theblock.co' },
       published_at: now,
       kind: 'news',
       currencies: [{ code: 'USDT', title: 'Tether' }],

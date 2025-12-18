@@ -38,7 +38,7 @@ export default function MobileNav() {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border safe-area-bottom">
-      <div className="flex items-center justify-around py-2">
+      <div className="flex items-center justify-around py-1">
         {visibleItems.map((item) => {
           const isActive = pathname === item.href || 
             (item.href !== '/' && pathname?.startsWith(item.href));
@@ -47,14 +47,14 @@ export default function MobileNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-colors ${
+              className={`flex flex-col items-center justify-center min-w-[64px] min-h-[48px] py-1.5 px-2 rounded-lg transition-colors active:bg-background/50 ${
                 isActive
                   ? 'text-accent'
-                  : 'text-text-secondary hover:text-text-primary'
+                  : 'text-text-secondary'
               }`}
             >
               {item.icon}
-              <span className="text-xs mt-1 font-medium">{item.label}</span>
+              <span className="text-[10px] mt-0.5 font-medium">{item.label}</span>
             </Link>
           );
         })}

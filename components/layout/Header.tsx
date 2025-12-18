@@ -18,6 +18,7 @@ interface SearchResult {
 export default function Header() {
   const { data: session, status } = useSession();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -77,25 +78,25 @@ export default function Header() {
   return (
     <>
     <header className="sticky top-0 z-50 bg-card border-b border-border backdrop-blur-sm bg-opacity-95">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Left: App Title with Mascot + Nav */}
-          <div className="flex items-center space-x-6">
-            <Link href="/" className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-6 flex-shrink-0">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               <div 
-                className="w-10 h-10 bg-contain bg-center bg-no-repeat flex-shrink-0"
+                className="w-8 h-8 sm:w-10 sm:h-10 bg-contain bg-center bg-no-repeat flex-shrink-0"
                 style={{ backgroundImage: 'url(/mascot.png)' }}
                 aria-label="Cosmic Radar Mascot"
               />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent">
                 Cosmic Radar
               </h1>
             </Link>
             
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-1">
               <Link
-                href="/"
+                href="/hub"
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-background transition-colors"
               >
                 <LayoutDashboard className="w-4 h-4" />
@@ -120,8 +121,8 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* Center: Search */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8" ref={searchRef}>
+          {/* Center: Search - hidden on mobile, shown on tablet+ */}
+          <div className="hidden sm:flex flex-1 max-w-xs md:max-w-md mx-2 md:mx-8" ref={searchRef}>
             <form onSubmit={handleSearch} className="w-full relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-secondary" />
               <input
@@ -162,9 +163,18 @@ export default function Header() {
             </form>
           </div>
 
-          {/* Right: Currency & User */}
-          <div className="flex items-center space-x-4">
-            <div className="px-3 py-1.5 bg-background border border-border rounded-lg text-sm font-medium">
+          {/* Right: Search Icon (mobile) & Currency & User */}
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+            {/* Mobile Search Icon */}
+            <button
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="sm:hidden p-2 hover:bg-background rounded-lg transition-colors"
+              aria-label="Search"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+            
+            <div className="hidden sm:block px-3 py-1.5 bg-background border border-border rounded-lg text-sm font-medium">
               USD
             </div>
             
@@ -240,6 +250,72 @@ export default function Header() {
         </div>
       </div>
     </header>
+
+    {/* Mobile Search Overlay */}
+    {showMobileSearch && (
+      <div className="sm:hidden fixed inset-0 bg-background z-50 flex flex-col">
+        <div className="flex items-center gap-3 p-4 border-b border-border">
+          <button
+            onClick={() => {
+              setShowMobileSearch(false);
+              setSearchQuery('');
+              setShowResults(false);
+            }}
+            className="p-2 hover:bg-card rounded-lg transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-secondary" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search cryptocurrencies..."
+              className="w-full pl-10 pr-10 py-2.5 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-text-primary placeholder-text-secondary"
+              autoFocus
+            />
+            {searching && (
+              <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-secondary animate-spin" />
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Search Results */}
+        <div className="flex-1 overflow-y-auto">
+          {searchResults.length > 0 ? (
+            <div className="divide-y divide-border">
+              {searchResults.map((result) => (
+                <button
+                  key={result.id}
+                  onClick={() => {
+                    handleCoinClick(result.id);
+                    setShowMobileSearch(false);
+                  }}
+                  className="w-full px-4 py-4 text-left hover:bg-card transition-colors flex items-center justify-between active:bg-card/80"
+                >
+                  <div>
+                    <div className="font-medium text-base">{result.name}</div>
+                    <div className="text-sm text-text-secondary">{result.symbol}</div>
+                  </div>
+                  <div className="text-sm text-text-secondary">#{result.rank}</div>
+                </button>
+              ))}
+            </div>
+          ) : searchQuery.trim().length >= 2 && !searching ? (
+            <div className="flex items-center justify-center h-32">
+              <p className="text-text-secondary">No results found</p>
+            </div>
+          ) : searchQuery.trim().length < 2 ? (
+            <div className="flex items-center justify-center h-32">
+              <p className="text-text-secondary">Type to search...</p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    )}
 
     {/* Coin Details Modal */}
     {selectedCoinId && (

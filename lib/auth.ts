@@ -5,13 +5,24 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
 
+// Debug: Log auth configuration on startup
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+if (!googleClientId || !googleClientSecret) {
+  console.warn('[Auth] Google OAuth not configured - GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET missing');
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    }),
+    // Only add Google provider if credentials are configured
+    ...(googleClientId && googleClientSecret ? [
+      GoogleProvider({
+        clientId: googleClientId,
+        clientSecret: googleClientSecret,
+      }),
+    ] : []),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {

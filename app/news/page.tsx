@@ -64,12 +64,12 @@ export default function NewsPage() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Crypto News</h1>
-            <p className="text-text-secondary mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold">Crypto News</h1>
+            <p className="text-text-secondary text-sm sm:text-base mt-1">
               Latest cryptocurrency news from around the web
             </p>
           </div>
@@ -77,34 +77,34 @@ export default function NewsPage() {
           <button
             onClick={handleRefresh}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50 w-full sm:w-auto"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        {/* Filter Tabs - Horizontally scrollable on mobile */}
+        <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-wrap">
           {filterOptions.map((option) => (
             <button
               key={option.value}
               onClick={() => setFilter(option.value)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 filter === option.value
                   ? 'bg-accent text-white'
                   : 'bg-card border border-border text-text-secondary hover:text-text-primary'
               }`}
             >
               {option.icon}
-              {option.label}
+              <span className="text-sm sm:text-base">{option.label}</span>
             </button>
           ))}
         </div>
 
         {/* Loading State */}
         {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="card animate-pulse">
                 <div className="h-4 bg-background rounded w-3/4 mb-3"></div>
@@ -132,14 +132,17 @@ export default function NewsPage() {
 
         {/* News Grid */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {news.map((item) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            {news.map((item) => {
+              // Use source URL if available, otherwise fall back to main URL
+              const articleUrl = item.source?.url || item.url;
+              return (
               <a
                 key={item.id}
-                href={item.url}
+                href={articleUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="card hover:border-accent transition-colors group"
+                className="card hover:border-accent transition-colors group active:scale-[0.98]"
               >
                 {/* Header with sentiment */}
                 <div className="flex items-start justify-between gap-2 mb-3">
@@ -194,7 +197,8 @@ export default function NewsPage() {
                   )}
                 </div>
               </a>
-            ))}
+              );
+            })}
           </div>
         )}
 

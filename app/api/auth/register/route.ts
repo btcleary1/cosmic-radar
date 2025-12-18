@@ -56,10 +56,24 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Registration error:', error);
+    
+    // Check for database connection errors
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const isDbError = errorMessage.includes('database') || 
+                      errorMessage.includes('prisma') || 
+                      errorMessage.includes("Can't reach");
+    
+    if (isDbError) {
+      return NextResponse.json(
+        { error: 'Database connection failed. Please try again later.' },
+        { status: 503 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to create user' },
+      { error: 'Failed to create user. Please try again.' },
       { status: 500 }
     );
   }

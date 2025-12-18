@@ -114,19 +114,21 @@ export default async function HubPage() {
       <div className="min-h-screen bg-background">
         <Header />
 
-        <main className="container mx-auto px-4 py-6 space-y-6">
-          {/* Hero Metrics Row */}
-          <MetricsRow
-            marketCap={globalMetrics.marketCap}
-            volume24h={globalMetrics.volume24h}
-            btcDominance={globalMetrics.btcDominance}
-            fearGreed={globalMetrics.fearGreed}
-            altcoinSeason={globalMetrics.altcoinSeason}
-            marketCapChange24h={globalMetrics.marketCapChange24h}
-            volumeChange24h={globalMetrics.volumeChange24h}
-            dexVolume24h={defiData.dex?.totalVolume24h || 0}
-            dexVolumeChange24h={defiData.dex?.change_1d || 0}
-          />
+        <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+          {/* Hero Metrics Row - Hidden on mobile, shown on sm+ */}
+          <div className="hidden sm:block">
+            <MetricsRow
+              marketCap={globalMetrics.marketCap}
+              volume24h={globalMetrics.volume24h}
+              btcDominance={globalMetrics.btcDominance}
+              fearGreed={globalMetrics.fearGreed}
+              altcoinSeason={globalMetrics.altcoinSeason}
+              marketCapChange24h={globalMetrics.marketCapChange24h}
+              volumeChange24h={globalMetrics.volumeChange24h}
+              dexVolume24h={defiData.dex?.totalVolume24h || 0}
+              dexVolumeChange24h={defiData.dex?.change_1d || 0}
+            />
+          </div>
 
           {/* Hub Container with Tabs */}
           <HubContainer compareData={compareData} defiData={defiData} />

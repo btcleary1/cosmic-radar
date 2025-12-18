@@ -140,107 +140,114 @@ export default function TopCoinsTable({ data }: TopCoinsTableProps) {
   return (
     <div className="card">
       <div className="mb-4">
-        <h2 className="text-xl font-bold mb-4">Top 200 Cryptocurrencies</h2>
+        <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Top 200 Cryptocurrencies</h2>
 
-        {/* Controls */}
-        <div className="flex flex-wrap gap-4 mb-4">
+        {/* Controls - Stack on mobile, row on desktop */}
+        <div className="space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:gap-3 mb-4">
+          {/* Search - Full width on mobile */}
           <input
             type="text"
-            placeholder="Search by name or symbol..."
+            placeholder="Search coins..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="flex-1 min-w-[200px] px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full sm:flex-1 sm:min-w-[180px] px-3 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-sm"
           />
 
-          <select
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === 'rank') setSorting([{ id: 'todayRank', desc: false }]);
-              else if (value === 'change')
-                setSorting([{ id: 'todayChange24h', desc: true }]);
-              else if (value === 'marketcap')
-                setSorting([{ id: 'todayMarketCap', desc: true }]);
-              else if (value === 'volume')
-                setSorting([{ id: 'todayVolume24h', desc: true }]);
-              else if (value === 'rankchange')
-                setSorting([{ id: 'rankChange', desc: true }]);
-            }}
-            className="px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-          >
-            <option value="rank">Sort by Rank</option>
-            <option value="change">Sort by 24h %</option>
-            <option value="marketcap">Sort by Market Cap</option>
-            <option value="volume">Sort by Volume</option>
-            <option value="rankchange">Sort by Δ Rank</option>
-          </select>
+          {/* Sort and filters row */}
+          <div className="flex gap-2 sm:gap-3">
+            <select
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === 'rank') setSorting([{ id: 'todayRank', desc: false }]);
+                else if (value === 'change')
+                  setSorting([{ id: 'todayChange24h', desc: true }]);
+                else if (value === 'marketcap')
+                  setSorting([{ id: 'todayMarketCap', desc: true }]);
+                else if (value === 'volume')
+                  setSorting([{ id: 'todayVolume24h', desc: true }]);
+                else if (value === 'rankchange')
+                  setSorting([{ id: 'rankChange', desc: true }]);
+              }}
+              className="flex-1 sm:flex-none px-3 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            >
+              <option value="rank">Rank</option>
+              <option value="change">24h %</option>
+              <option value="marketcap">Market Cap</option>
+              <option value="volume">Volume</option>
+              <option value="rankchange">Δ Rank</option>
+            </select>
 
-          <input
-            type="number"
-            placeholder="Min Volume (M)"
-            value={minVolume || ''}
-            onChange={(e) => setMinVolume(Number(e.target.value))}
-            className="w-32 px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-          />
+            {/* Hide advanced filters on mobile */}
+            <input
+              type="number"
+              placeholder="Min Vol (M)"
+              value={minVolume || ''}
+              onChange={(e) => setMinVolume(Number(e.target.value))}
+              className="hidden sm:block w-28 px-3 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            />
 
-          <input
-            type="number"
-            placeholder="Min Market Cap (M)"
-            value={minMarketCap || ''}
-            onChange={(e) => setMinMarketCap(Number(e.target.value))}
-            className="w-40 px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-          />
+            <input
+              type="number"
+              placeholder="Min MCap (M)"
+              value={minMarketCap || ''}
+              onChange={(e) => setMinMarketCap(Number(e.target.value))}
+              className="hidden sm:block w-32 px-3 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-border">
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="text-left px-4 py-3 text-sm font-semibold text-text-secondary cursor-pointer hover:text-text-primary"
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    <div className="flex items-center space-x-1">
-                      <span>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      </span>
-                      {header.column.getIsSorted() && (
+      {/* Table - Horizontally scrollable on mobile */}
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="min-w-[600px] px-4 sm:px-0">
+          <table className="w-full">
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id} className="border-b border-border">
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="text-left px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-text-secondary cursor-pointer hover:text-text-primary whitespace-nowrap"
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
+                      <div className="flex items-center space-x-1">
                         <span>
-                          {header.column.getIsSorted() === 'desc' ? '↓' : '↑'}
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                         </span>
-                      )}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                onClick={() => setSelectedCoinId(row.original.cmcId)}
-                className="border-b border-border hover:bg-background transition-colors cursor-pointer"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-3">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                        {header.column.getIsSorted() && (
+                          <span>
+                            {header.column.getIsSorted() === 'desc' ? '↓' : '↑'}
+                          </span>
+                        )}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  onClick={() => setSelectedCoinId(row.original.cmcId)}
+                  className="border-b border-border hover:bg-background transition-colors cursor-pointer active:bg-background/80"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="px-2 sm:px-4 py-2.5 sm:py-3 text-sm">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div className="mt-4 text-sm text-text-secondary">
+      <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-text-secondary">
         Showing {table.getRowModel().rows.length} of {data.length} coins
       </div>
 

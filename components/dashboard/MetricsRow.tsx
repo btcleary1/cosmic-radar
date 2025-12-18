@@ -92,14 +92,14 @@ export default function MetricsRow({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
       {/* Total Market Cap */}
-      <div className="card">
-        <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
-          <Activity className="w-4 h-4" />
-          <span>Total Market Cap</span>
+      <div className="card col-span-2 sm:col-span-1">
+        <div className="flex items-center gap-2 text-text-secondary text-xs sm:text-sm mb-2">
+          <Activity className="w-4 h-4 flex-shrink-0" />
+          <span className="truncate">Total Market Cap</span>
         </div>
-        <div className="text-2xl font-bold">{formatLargeNumber(marketCap)}</div>
+        <div className="text-xl sm:text-2xl font-bold">{formatLargeNumber(marketCap)}</div>
         {renderChangeArrow(marketCapChange24h)}
         {(() => {
           const prevMarketCap = computePreviousFromChange(marketCap, marketCapChange24h);
@@ -116,11 +116,11 @@ export default function MetricsRow({
 
       {/* 24h Volume */}
       <div className="card">
-        <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
-          <Activity className="w-4 h-4" />
-          <span>24h Volume</span>
+        <div className="flex items-center gap-2 text-text-secondary text-xs sm:text-sm mb-2">
+          <Activity className="w-4 h-4 flex-shrink-0" />
+          <span className="truncate">24h Volume</span>
         </div>
-        <div className="text-2xl font-bold">{formatLargeNumber(volume24h)}</div>
+        <div className="text-xl sm:text-2xl font-bold">{formatLargeNumber(volume24h)}</div>
         {renderChangeArrow(volumeChange24h)}
         {(() => {
           const prevVolume = computePreviousFromChange(volume24h, volumeChange24h);
@@ -137,45 +137,45 @@ export default function MetricsRow({
 
       {/* BTC Dominance */}
       <div className="card">
-        <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
-          <Bitcoin className="w-4 h-4 text-orange-500" />
-          <span>BTC Dominance</span>
+        <div className="flex items-center gap-2 text-text-secondary text-xs sm:text-sm mb-2">
+          <Bitcoin className="w-4 h-4 text-orange-500 flex-shrink-0" />
+          <span className="truncate">BTC Dominance</span>
         </div>
         {renderGauge(btcDominance, 'text-orange-500')}
       </div>
 
       {/* Fear & Greed Index */}
       <div className="card">
-        <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
-          <Gauge className="w-4 h-4" />
-          <span>Fear & Greed</span>
+        <div className="flex items-center gap-2 text-text-secondary text-xs sm:text-sm mb-2">
+          <Gauge className="w-4 h-4 flex-shrink-0" />
+          <span className="truncate">Fear & Greed</span>
         </div>
         {renderGauge(fearGreed.value, getFearGreedColor(fearGreed.value))}
-        <div className="text-sm text-text-secondary text-center">{fearGreed.label}</div>
+        <div className="text-xs sm:text-sm text-text-secondary text-center">{fearGreed.label}</div>
       </div>
 
       {/* Altcoin Season Index */}
       <div className="card">
-        <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
-          <Coins className="w-4 h-4 text-purple-500" />
-          <span>Altcoin Season</span>
+        <div className="flex items-center gap-2 text-text-secondary text-xs sm:text-sm mb-2">
+          <Coins className="w-4 h-4 text-purple-500 flex-shrink-0" />
+          <span className="truncate">Altcoin Season</span>
           {altcoinSeason.isEstimate && (
-            <span className="text-xs px-1.5 py-0.5 bg-warning/10 text-warning rounded" title="Estimated from BTC dominance">
+            <span className="text-xs px-1 py-0.5 bg-warning/10 text-warning rounded ml-auto flex-shrink-0" title="Estimated from BTC dominance">
               Est.
             </span>
           )}
         </div>
         {renderGauge(altcoinSeason.value, 'text-purple-500')}
-        <div className="text-sm text-text-secondary text-center">{altcoinSeason.label}</div>
+        <div className="text-xs sm:text-sm text-text-secondary text-center">{altcoinSeason.label}</div>
       </div>
 
       {/* DEX Volume */}
       <div className="card">
-        <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
-          <Repeat className="w-4 h-4 text-blue-500" />
-          <span>DEX Volume (24h)</span>
+        <div className="flex items-center gap-2 text-text-secondary text-xs sm:text-sm mb-2">
+          <Repeat className="w-4 h-4 text-blue-500 flex-shrink-0" />
+          <span className="truncate">DEX Volume (24h)</span>
         </div>
-        <div className="text-2xl font-bold">
+        <div className="text-xl sm:text-2xl font-bold">
           {dexVolume24h > 0 ? formatLargeNumber(dexVolume24h) : 'Loading...'}
         </div>
         {dexVolume24h > 0 && renderChangeArrow(dexVolumeChange24h)}
