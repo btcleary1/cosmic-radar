@@ -1,4 +1,1 @@
----
-trigger: manual
----
-
+=
