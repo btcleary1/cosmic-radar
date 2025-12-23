@@ -1,0 +1,10 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Leaf icon -->
+  <path d="M30 15C30 6.71573 36.7157 0 45 0C53.2843 0 60 6.71573 60 15V45C60 53.2843 53.2843 60 45 60C36.7157 60 30 53.2843 30 45V15Z" fill="#166534"/>
+  <path d="M40 30L50 40L60 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M40 40L50 30L60 40" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Text -->
+  <text x="70" y="40" font-family="'Playfair Display', serif" font-weight="700" font-size="32" fill="#166534">Hortus</text>
+  <text x="70" y="50" font-family="Inter, sans-serif" font-weight="500" font-size="14" fill="#475569">Garden & Landscape</text>
+</svg>

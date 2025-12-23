@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hortus Garden & Landscape</title>
+    <meta name="description" content="Transform your outdoor space with expert landscaping solutions. From design to maintenance, we bring your vision to life with quality craftsmanship and local expertise." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" id="top">
+      <div class="container header-inner">
+        <a class="brand" href="#top" aria-label="Hortus Home">
+          <img src="./images/logo-optimized.svg" onerror="this.src='./images/logo.svg'" alt="Hortus Garden & Landscape" class="logo">
+        </a>
+
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>
+          <span class="sr-only">Open navigation</span>
+          <span class="nav-toggle-bars" aria-hidden="true"></span>
+        </button>
+
+        <nav class="nav" id="site-nav" data-nav>
+          <a class="nav-link" href="#services">Services</a>
+          <a class="nav-link" href="#quote">Get Quote</a>
+          <a class="btn btn-sm" href="#contact">Contact Us</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <h1 class="hero-title">Professional Landscaping Services</h1>
+            <p class="hero-subtitle">Transform your outdoor space with expert landscaping solutions tailored to your needs. From design to maintenance, we bring your vision to life with quality craftsmanship and regional landscaping expertise.</p>
+            <div class="hero-actions">
+              <a class="btn" href="#services">Explore Services</a>
+              <a class="btn btn-outline" href="#quote">Get Instant Quote</a>
+            </div>
+            <div class="hero-badges" aria-label="Service area">
+              <span class="badge">Residential</span>
+              <span class="badge">Commercial</span>
+              <span class="badge">Design • Build • Maintain</span>
+            </div>
+          </div>
+          <div class="hero-media" aria-hidden="true">
+            <div class="hero-card">
+              <div class="hero-card-title">Trusted local landscaping</div>
+              <div class="hero-card-metrics">
+                <div class="metric"><div class="metric-value">15+</div><div class="metric-label">Years</div></div>
+                <div class="metric"><div class="metric-value">500+</div><div class="metric-label">Projects</div></div>
+                <div class="metric"><div class="metric-value">4.9</div><div class="metric-label">Avg rating</div></div>
+              </div>
+              <div class="hero-card-note">Fast quotes. Clear scope. Professional results.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="services">
+        <div class="container">
+          <div class="section-head">
+            <h2 class="section-title">Professional Landscaping Services</h2>
+            <p class="section-subtitle">Comprehensive landscaping solutions for residential and commercial properties.</p>
+          </div>
+
+          <div class="cards" id="service-cards" aria-label="Service list"></div>
+        </div>
+      </section>
+
+      <section class="section section-alt" id="quote">
+        <div class="container">
+          <div class="section-head">
+            <h2 class="section-title">Get Your Instant Quote</h2>
+            <p class="section-subtitle">Build a custom estimate, review a simple service contract, and sign digitally.</p>
+          </div>
+
+          <div class="quote-layout">
+            <div class="quote-panel">
+              <div class="stepper" role="tablist" aria-label="Quote steps">
+                <button class="step" type="button" data-step="1" aria-current="step">1. Details</button>
+                <button class="step" type="button" data-step="2">2. Scope</button>
+                <button class="step" type="button" data-step="3">3. Summary</button>
+                <button class="step" type="button" data-step="4">4. Contract</button>
+                <button class="step" type="button" data-step="5">5. Signature</button>
+              </div>
+
+              <form id="quote-form" class="quote-form" novalidate>
+                <section class="step-pane" data-step-pane="1">
+                  <div class="field-grid">
+                    <div class="field">
+                      <label for="customerName">Full name</label>
+                      <input id="customerName" name="customerName" autocomplete="name" required />
+                    </div>
+                    <div class="field">
+                      <label for="customerEmail">Email</label>
+                      <input id="customerEmail" name="customerEmail" type="email" autocomplete="email" required />
+                    </div>
+                    <div class="field">
+                      <label for="customerPhone">Phone</label>
+                      <input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" />
+                    </div>
+                    <div class="field">
+                      <label for="serviceType">Service</label>
+                      <select id="serviceType" name="serviceType" required></select>
+                    </div>
+                    <div class="field field-span-2">
+                      <label for="serviceArea">Service area / city</label>
+                      <input id="serviceArea" name="serviceArea" autocomplete="address-level2" placeholder="City, State" required />
+                    </div>
+                  </div>
+                </section>
+
+                <section class="step-pane" data-step-pane="2" hidden>
+                  <div class="field-grid">
+                    <div class="field">
+                      <label for="propertyType">Property type</label>
+                      <select id="propertyType" name="propertyType">
+                        <option value="residential">Residential</option>
+                        <option value="commercial">Commercial</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="propertySize">Approx. yard size (sq ft)</label>
+                      <input id="propertySize" name="propertySize" type="number" inputmode="numeric" min="500" step="50" value="5000" required />
+                    </div>
+                    <div class="field">
+                      <label for="complexity">Complexity</label>
+                      <select id="complexity" name="complexity">
+                        <option value="standard">Standard</option>
+                        <option value="premium">Premium</option>
+                        <option value="high">High</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="frequency">Frequency</label>
+                      <select id="frequency" name="frequency">
+                        <option value="one-time">One-time</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="bi-weekly">Bi-weekly</option>
+                        <option value="weekly">Weekly</option>
+                      </select>
+                    </div>
+                    <div class="field field-span-2">
+                      <label for="notes">Notes (optional)</label>
+                      <textarea id="notes" name="notes" rows="4" placeholder="Tell us about access, priorities, or any special requests."></textarea>
+                    </div>
+                    <div class="field field-span-2">
+                      <label class="checkbox">
+                        <input id="urgent" name="urgent" type="checkbox" />
+                        <span>Priority scheduling (rush)</span>
+                      </label>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="step-pane" data-step-pane="3" hidden>
+                  <div class="quote-summary">
+                    <div class="summary-card">
+                      <div class="summary-title">Your Custom Quote</div>
+                      <div class="summary-amount" id="quoteTotal">$0</div>
+                      <div class="summary-note" id="quoteCadence">Estimated total</div>
+                    </div>
+                    <div class="summary-card">
+                      <div class="summary-title">Quote Summary</div>
+                      <dl class="summary-dl" id="quoteBreakdown"></dl>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="step-pane" data-step-pane="4" hidden>
+                  <div class="contract-tools">
+                    <button class="btn btn-outline" type="button" data-action="email">Email Quote Contract</button>
+                    <button class="btn btn-outline" type="button" data-action="download">Download Contract</button>
+                    <button class="btn" type="button" data-action="refresh">Refresh Contract</button>
+                  </div>
+                  <div class="contract" aria-label="Contract preview">
+                    <pre id="contractText"></pre>
+                  </div>
+                </section>
+
+                <section class="step-pane" data-step-pane="5" hidden>
+                  <div class="signature-grid">
+                    <div>
+                      <div class="signature-head">
+                        <div>
+                          <div class="summary-title">Digital Signature Required</div>
+                          <div class="summary-note">Sign below to accept the quote contract.</div>
+                        </div>
+                        <div class="signature-actions">
+                          <button class="btn btn-outline" type="button" data-action="clear-signature">Clear</button>
+                        </div>
+                      </div>
+                      <div class="signature-pad">
+                        <canvas id="signatureCanvas" width="900" height="260" aria-label="Signature canvas"></canvas>
+                      </div>
+                      <label class="checkbox accept">
+                        <input id="acceptTerms" type="checkbox" required />
+                        <span>I confirm this signature is mine and I accept the quote contract.</span>
+                      </label>
+                      <div class="actions-row">
+                        <button class="btn" type="button" data-action="accept">Accept Quote Contract</button>
+                      </div>
+                      <div class="notice" id="acceptNotice" role="status" aria-live="polite" hidden></div>
+                    </div>
+
+                    <div class="summary-card">
+                      <div class="summary-title">Final Details</div>
+                      <dl class="summary-dl" id="finalDetails"></dl>
+                      <div class="summary-note">After accepting, you can schedule a consultation.</div>
+                      <div class="actions-row">
+                        <a class="btn btn-outline" href="#contact" data-action="schedule">Schedule Your Consultation</a>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <div class="quote-nav">
+                  <button class="btn btn-outline" type="button" data-action="back">Back</button>
+                  <button class="btn" type="button" data-action="next">Next</button>
+                </div>
+              </form>
+            </div>
+
+            <aside class="side-panel" aria-label="Quote help">
+              <div class="side-card">
+                <div class="side-title">How this works</div>
+                <ol class="side-list">
+                  <li>Select a service and enter property details.</li>
+                  <li>Review a transparent, itemized estimate.</li>
+                  <li>Generate a simple contract, then sign digitally.</li>
+                </ol>
+              </div>
+              <div class="side-card">
+                <div class="side-title">What you’ll get</div>
+                <ul class="side-list">
+                  <li>Clear scope and inclusions</li>
+                  <li>Instant estimate (adjustable)</li>
+                  <li>Downloadable contract</li>
+                </ul>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="contact">
+        <div class="container">
+          <div class="section-head">
+            <h2 class="section-title">Contact</h2>
+            <p class="section-subtitle">Questions before you request a quote? Reach out anytime.</p>
+          </div>
+
+          <div class="contact-grid">
+            <div class="contact-card">
+              <div class="contact-label">Phone</div>
+              <a class="contact-value" href="tel:+15551234567">(555) 123-4567</a>
+              <div class="contact-note">Mon–Fri, 8am–5pm</div>
+            </div>
+            <div class="contact-card">
+              <div class="contact-label">Email</div>
+              <a class="contact-value" href="mailto:hello@hortus.example">hello@hortus.example</a>
+              <div class="contact-note">We respond within 1 business day</div>
+            </div>
+            <div class="contact-card">
+              <div class="contact-label">Service area</div>
+              <div class="contact-value">Your City + surrounding areas</div>
+              <div class="contact-note">Residential & commercial</div>
+            </div>
+          </div>
+
+          <div class="fineprint">This is a local static project created under <span class="mono">windsurf-project</span>. Replace contact info, pricing rules, and contract terms for your business.</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <div class="brand-mark">Hortus</div>
+          <div class="footer-note">Garden & Landscape</div>
+        </div>
+        <div class="footer-links">
+          <a href="#services">Services</a>
+          <a href="#quote">Get Quote</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div class="footer-copy">© <span id="year"></span> Hortus Garden & Landscape</div>
+      </div>
+    </footer>
+
+    <div class="modal" id="serviceModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Service details">
+      <div class="modal-backdrop" data-modal-close></div>
+      <div class="modal-card" role="document">
+        <div class="modal-head">
+          <div>
+            <div class="modal-title" id="modalTitle">Service</div>
+            <div class="modal-sub" id="modalPrice"></div>
+          </div>
+          <button class="icon-btn" type="button" aria-label="Close" data-modal-close>×</button>
+        </div>
+        <div class="modal-body">
+          <p id="modalDesc" class="modal-desc"></p>
+          <div class="modal-section">
+            <div class="modal-section-title">What's Included</div>
+            <ul class="modal-list" id="modalList"></ul>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">Notes</div>
+            <div id="modalNote" class="modal-note"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/services.js"></script>
+  </body>
+</html>

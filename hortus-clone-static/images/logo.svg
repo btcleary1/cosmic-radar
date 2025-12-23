@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 10C20 4.47715 24.4772 0 30 0H90C95.5228 0 100 4.47715 100 10V30C100 35.5228 95.5228 40 90 40H30C24.4772 40 20 35.5228 20 30V10Z" fill="#166534"/>
+  <path d="M35 15L45 25L55 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M35 25L45 15L55 25" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="65" y="27" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#166534">Hortus</text>
+</svg>
