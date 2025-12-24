@@ -35,3 +35,8 @@ next-env.d.ts
 
 # prisma
 prisma/migrations
+
+# Misc / leftover folders
+*.log
+.cache/
+windsurf-landscaping/
