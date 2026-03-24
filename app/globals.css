@@ -41,6 +41,11 @@ body {
   overflow-x: hidden;
   background-color: var(--background);
   color: var(--text-primary);
+  height: auto;
+  min-height: 100vh;
+  /* Enable smooth touch scrolling */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -51,6 +56,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   /* Prevent pull-to-refresh on mobile */
   overscroll-behavior-y: contain;
+  /* Enable smooth scrolling for touchpads */
+  scroll-behavior: smooth;
+  /* Improve touchpad scrolling */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Ensure touch targets are at least 44px for accessibility */
@@ -70,23 +79,34 @@ a {
   text-decoration: none;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - thinner and more seamless */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1F2937;
+  background: rgba(156, 163, 175, 0.5);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
 }
 
 /* Utility classes */
@@ -123,6 +143,12 @@ a {
     padding-left: 2rem;
     padding-right: 2rem;
   }
+}
+
+/* Enhanced touch scrolling for all scrollable containers */
+* {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 /* Mobile-first horizontal scroll container */
