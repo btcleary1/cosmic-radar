@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "dev:health": "NEXT_PUBLIC_APP_TYPE=health next dev -p 3002",
+    "dev:health": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
