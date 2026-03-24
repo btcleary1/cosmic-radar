@@ -217,6 +217,36 @@ export default function HealthDashboard() {
       activitiesPrior: 'Quiet evening routine, no excitement',
       medicationsGiven: 'None needed',
       followUpActions: 'Documented in symptom diary'
+    }},
+    { id: '3', date: '2023-11-15', time: '10:30', type: 'arrhythmia', severity: 'moderate', duration: '15 minutes', triggers: ['stress'], symptoms: ['irregular heartbeat', 'dizziness'], vitals: { heartRate: 120, bloodPressure: '140/90', oxygen: 96 }, notes: 'Irregular heartbeat during math test', resolved: true, parentNotes: {
+      beforeEvent: 'Stressed about upcoming math test, seemed anxious',
+      duringEvent: 'Complained of heart fluttering, looked pale',
+      afterEvent: 'Symptoms subsided after resting, returned to class',
+      observations: 'Teacher noticed child was holding chest',
+      emotionalState: 'Anxious before, scared during, relieved after',
+      activitiesPrior: 'Taking math test at school',
+      medicationsGiven: 'None needed',
+      followUpActions: 'Teacher notified, parents called'
+    }},
+    { id: '4', date: '2023-11-12', time: '16:45', type: 'dizziness', severity: 'mild', duration: '10 minutes', triggers: ['standing up quickly'], symptoms: ['lightheadedness', 'nausea'], vitals: { heartRate: 95, bloodPressure: '110/70', oxygen: 98 }, notes: 'Felt dizzy when standing up from chair', resolved: true, parentNotes: {
+      beforeEvent: 'Sitting watching TV, seemed fine',
+      duringEvent: 'Stood up quickly, felt dizzy, had to sit back down',
+      afterEvent: 'Recovered after a few minutes of rest',
+      observations: 'No loss of consciousness, just brief dizziness',
+      emotionalState: 'Normal before, briefly concerned during',
+      activitiesPrior: 'Watching TV after school',
+      medicationsGiven: 'None needed',
+      followUpActions: 'Monitored for 30 minutes, no further issues'
+    }},
+    { id: '5', date: '2023-11-10', time: '19:20', type: 'chest_pain', severity: 'moderate', duration: '20 minutes', triggers: ['emotional upset'], symptoms: ['chest tightness', 'shortness of breath'], vitals: { heartRate: 110, bloodPressure: '135/85', oxygen: 97 }, notes: 'Chest pain after argument with sibling', resolved: true, parentNotes: {
+      beforeEvent: 'Had argument with sibling, was upset and crying',
+      duringEvent: 'Complained of chest feeling tight, breathing difficulty',
+      afterEvent: 'Symptoms improved after calming down and deep breathing',
+      observations: 'Child was visibly upset before symptoms started',
+      emotionalState: 'Upset before, scared during, calm after',
+      activitiesPrior: 'Family disagreement at home',
+      medicationsGiven: 'None needed',
+      followUpActions: 'Family discussion about conflict resolution'
     }}
   ];
 
