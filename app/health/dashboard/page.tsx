@@ -183,7 +183,7 @@ export default function HealthDashboard() {
   const updateParentNotes = (field: string, value: string) => {
     setNewEvent(prev => ({
       ...prev,
-      parentNotes: { ...prev.parentNotes, [field]: value }
+      parentNotes: { ...(prev.parentNotes || {}), [field]: value } as any
     }));
   };
 
