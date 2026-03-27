@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useRouter } from 'next/navigation';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, ReferenceLine, Legend } from 'recharts';
 
 interface CareTeamMember {
   name: string;
@@ -98,10 +99,24 @@ interface TrendAnalysis {
 }
 
 export default function HealthDashboard() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [showNewEventForm, setShowNewEventForm] = useState(false);
   const [showVisitForm, setShowVisitForm] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState<'1week' | '1month' | '3months' | '6months'>('1month');
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [editingNotes, setEditingNotes] = useState<CardiacEvent['parentNotes']>({
+    beforeEvent: '', duringEvent: '', afterEvent: '',
+    observations: '', emotionalState: '', activitiesPrior: '',
+    medicationsGiven: '', followUpActions: ''
+  });
+  const [allCardiacEvents, setAllCardiacEvents] = useState<CardiacEvent[]>([
+    { id: '1', date: '2023-11-20', time: '14:30', type: 'cardiac_arrest', severity: 'critical', duration: '45 minutes', triggers: ['physical exertion'], symptoms: ['sudden collapse', 'no pulse', 'unresponsive'], vitals: { heartRate: 0, bloodPressure: '0/0', oxygen: 85 }, notes: 'Sudden cardiac arrest during PE class - CPR performed for 8 minutes', resolved: true, cprRequired: true, cprDuration: '8 minutes', medicalResponse: { calledEMS: true, emsResponseTime: '6 minutes', hospitalTransport: true, defibrillatorUsed: true }, parentNotes: { beforeEvent: 'Child was excited about PE class, had normal breakfast, seemed healthy', duringEvent: 'Suddenly collapsed during running exercise, turned blue, no breathing, immediately started CPR', afterEvent: 'Child was confused but responsive after EMS arrived, transported to hospital', observations: 'Other kids said he seemed normal before collapse, no warning signs', emotionalState: 'Happy and energetic before event, scared and confused after', activitiesPrior: 'PE class - running laps, normal school day', medicationsGiven: 'Emergency epinephrine by EMS', followUpActions: 'Hospitalized for 3 days, now has ICD implant scheduled' }},
+    { id: '2', date: '2023-11-18', time: '22:15', type: 'palpitations', severity: 'mild', duration: '5 minutes', triggers: ['lying down'], symptoms: ['racing heart'], vitals: { heartRate: 88, bloodPressure: '125/82', oxygen: 99 }, notes: 'Occasional fluttering sensation', resolved: true, parentNotes: { beforeEvent: 'Watching bedtime story, calm and relaxed', duringEvent: 'Complained of heart racing, seemed anxious', afterEvent: 'Symptoms resolved on their own, child fell asleep normally', observations: 'No visible distress, just verbal complaint', emotionalState: 'Calm before, slightly anxious during, normal after', activitiesPrior: 'Quiet evening routine, no excitement', medicationsGiven: 'None needed', followUpActions: 'Documented in symptom diary' }},
+    { id: '3', date: '2023-11-15', time: '10:30', type: 'arrhythmia', severity: 'moderate', duration: '15 minutes', triggers: ['stress'], symptoms: ['irregular heartbeat', 'dizziness'], vitals: { heartRate: 120, bloodPressure: '140/90', oxygen: 96 }, notes: 'Irregular heartbeat during math test', resolved: true, parentNotes: { beforeEvent: 'Stressed about upcoming math test, seemed anxious', duringEvent: 'Complained of heart fluttering, looked pale', afterEvent: 'Symptoms subsided after resting, returned to class', observations: 'Teacher noticed child was holding chest', emotionalState: 'Anxious before, scared during, relieved after', activitiesPrior: 'Taking math test at school', medicationsGiven: 'None needed', followUpActions: 'Teacher notified, parents called' }},
+    { id: '4', date: '2023-11-12', time: '16:45', type: 'dizziness', severity: 'mild', duration: '10 minutes', triggers: ['standing up quickly'], symptoms: ['lightheadedness', 'nausea'], vitals: { heartRate: 95, bloodPressure: '110/70', oxygen: 98 }, notes: 'Felt dizzy when standing up from chair', resolved: true, parentNotes: { beforeEvent: 'Sitting watching TV, seemed fine', duringEvent: 'Stood up quickly, felt dizzy, had to sit back down', afterEvent: 'Recovered after a few minutes of rest', observations: 'No loss of consciousness, just brief dizziness', emotionalState: 'Normal before, briefly concerned during', activitiesPrior: 'Watching TV after school', medicationsGiven: 'None needed', followUpActions: 'Monitored for 30 minutes, no further issues' }},
+    { id: '5', date: '2023-11-10', time: '19:20', type: 'chest_pain', severity: 'moderate', duration: '20 minutes', triggers: ['emotional upset'], symptoms: ['chest tightness', 'shortness of breath'], vitals: { heartRate: 110, bloodPressure: '135/85', oxygen: 97 }, notes: 'Chest pain after argument with sibling', resolved: true, parentNotes: { beforeEvent: 'Had argument with sibling, was upset and crying', duringEvent: 'Complained of chest feeling tight, breathing difficulty', afterEvent: 'Symptoms improved after calming down and deep breathing', observations: 'Child was visibly upset before symptoms started', emotionalState: 'Upset before, scared during, calm after', activitiesPrior: 'Family disagreement at home', medicationsGiven: 'None needed', followUpActions: 'Family discussion about conflict resolution' }}
+  ]);
   const [newEvent, setNewEvent] = useState<Partial<CardiacEvent>>({
     date: new Date().toISOString().split('T')[0],
     time: new Date().toTimeString().slice(0, 5),
@@ -129,12 +144,19 @@ export default function HealthDashboard() {
     setMounted(true);
   }, []);
 
+  const [toastMessage, setToastMessage] = useState('');
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
+
   const handleMessageClick = (memberName: string) => {
-    alert(`Opening message composer for ${memberName}...`);
+    showToast(`Message to ${memberName} — messaging coming soon`);
   };
 
   const handleViewDetails = (incidentType: string, incidentDate: string) => {
-    alert(`Viewing details for ${incidentType} from ${incidentDate}`);
+    showToast(`${incidentType} details from ${incidentDate} — expanded view coming soon`);
   };
 
   const handleAddCardiacEvent = () => {
@@ -145,31 +167,61 @@ export default function HealthDashboard() {
     setShowVisitForm(true);
   };
 
+  const blankEventForm: Partial<CardiacEvent> = {
+    date: new Date().toISOString().split('T')[0],
+    time: new Date().toTimeString().slice(0, 5),
+    type: 'other',
+    severity: 'mild',
+    duration: '',
+    symptoms: [],
+    triggers: [],
+    vitals: { heartRate: 0, bloodPressure: '', oxygen: 0 },
+    notes: '',
+    cprRequired: false,
+    parentNotes: {
+      beforeEvent: '', duringEvent: '', afterEvent: '',
+      observations: '', emotionalState: '', activitiesPrior: '',
+      medicationsGiven: '', followUpActions: ''
+    }
+  };
+
   const handleSaveEvent = () => {
-    alert('Event saved successfully! In production, this would be stored in database.');
+    const eventToSave: CardiacEvent = {
+      id: Date.now().toString(),
+      date: newEvent.date || blankEventForm.date!,
+      time: newEvent.time || blankEventForm.time!,
+      type: newEvent.type || 'other',
+      severity: newEvent.severity || 'mild',
+      duration: newEvent.duration || '',
+      symptoms: newEvent.symptoms || [],
+      triggers: newEvent.triggers || [],
+      vitals: newEvent.vitals || { heartRate: 0, bloodPressure: '', oxygen: 0 },
+      notes: newEvent.notes || '',
+      resolved: false,
+      cprRequired: newEvent.cprRequired,
+      cprDuration: newEvent.cprDuration,
+      medicalResponse: newEvent.medicalResponse,
+      parentNotes: newEvent.parentNotes,
+    };
+    setAllCardiacEvents(prev => [eventToSave, ...prev]);
     setShowNewEventForm(false);
-    setNewEvent({
-      date: new Date().toISOString().split('T')[0],
-      time: new Date().toTimeString().slice(0, 5),
-      type: 'other',
-      severity: 'mild',
-      duration: '',
-      symptoms: [],
-      triggers: [],
-      vitals: { heartRate: 0, bloodPressure: '', oxygen: 0 },
-      notes: '',
-      cprRequired: false,
-      parentNotes: {
-        beforeEvent: '',
-        duringEvent: '',
-        afterEvent: '',
-        observations: '',
-        emotionalState: '',
-        activitiesPrior: '',
-        medicationsGiven: '',
-        followUpActions: ''
-      }
+    setNewEvent(blankEventForm);
+  };
+
+  const handleOpenEditNotes = (event: CardiacEvent) => {
+    setEditingEventId(event.id);
+    setEditingNotes(event.parentNotes || {
+      beforeEvent: '', duringEvent: '', afterEvent: '',
+      observations: '', emotionalState: '', activitiesPrior: '',
+      medicationsGiven: '', followUpActions: ''
     });
+  };
+
+  const handleSaveEditedNotes = () => {
+    setAllCardiacEvents(prev =>
+      prev.map(e => e.id === editingEventId ? { ...e, parentNotes: editingNotes } : e)
+    );
+    setEditingEventId(null);
   };
 
   const handleCancelEvent = () => {
@@ -188,67 +240,13 @@ export default function HealthDashboard() {
   };
 
   const handleAnalyzeWithAI = () => {
-    const eventCount = filteredCardiacEvents.length;
-    const eventsPerWeek = trendAnalysis.eventFrequency;
-    alert(`AI Analysis: Based on ${eventCount} cardiac events over ${selectedTimeRange.replace('1', '1 ')} showing ${eventsPerWeek} events per week, ${trendAnalysis.severityTrend === 'increasing' ? 'severity is worsening' : 'condition appears stable'}. Primary triggers: ${trendAnalysis.primaryTriggers.join(', ')}.`);
+    router.push('/health/ai-analysis');
   };
 
   if (!mounted) {
     return <div>Loading dashboard...</div>;
   }
 
-  const allCardiacEvents: CardiacEvent[] = [
-    { id: '1', date: '2023-11-20', time: '14:30', type: 'cardiac_arrest', severity: 'critical', duration: '45 minutes', triggers: ['physical exertion'], symptoms: ['sudden collapse', 'no pulse', 'unresponsive'], vitals: { heartRate: 0, bloodPressure: '0/0', oxygen: 85 }, notes: 'Sudden cardiac arrest during PE class - CPR performed for 8 minutes', resolved: true, cprRequired: true, cprDuration: '8 minutes', medicalResponse: { calledEMS: true, emsResponseTime: '6 minutes', hospitalTransport: true, defibrillatorUsed: true }, parentNotes: {
-      beforeEvent: 'Child was excited about PE class, had normal breakfast, seemed healthy',
-      duringEvent: 'Suddenly collapsed during running exercise, turned blue, no breathing, immediately started CPR',
-      afterEvent: 'Child was confused but responsive after EMS arrived, transported to hospital',
-      observations: 'Other kids said he seemed normal before collapse, no warning signs',
-      emotionalState: 'Happy and energetic before event, scared and confused after',
-      activitiesPrior: 'PE class - running laps, normal school day',
-      medicationsGiven: 'Emergency epinephrine by EMS',
-      followUpActions: 'Hospitalized for 3 days, now has ICD implant scheduled'
-    }},
-    { id: '2', date: '2023-11-18', time: '22:15', type: 'palpitations', severity: 'mild', duration: '5 minutes', triggers: ['lying down'], symptoms: ['racing heart'], vitals: { heartRate: 88, bloodPressure: '125/82', oxygen: 99 }, notes: 'Occasional fluttering sensation', resolved: true, parentNotes: {
-      beforeEvent: 'Watching bedtime story, calm and relaxed',
-      duringEvent: 'Complained of heart racing, seemed anxious',
-      afterEvent: 'Symptoms resolved on their own, child fell asleep normally',
-      observations: 'No visible distress, just verbal complaint',
-      emotionalState: 'Calm before, slightly anxious during, normal after',
-      activitiesPrior: 'Quiet evening routine, no excitement',
-      medicationsGiven: 'None needed',
-      followUpActions: 'Documented in symptom diary'
-    }},
-    { id: '3', date: '2023-11-15', time: '10:30', type: 'arrhythmia', severity: 'moderate', duration: '15 minutes', triggers: ['stress'], symptoms: ['irregular heartbeat', 'dizziness'], vitals: { heartRate: 120, bloodPressure: '140/90', oxygen: 96 }, notes: 'Irregular heartbeat during math test', resolved: true, parentNotes: {
-      beforeEvent: 'Stressed about upcoming math test, seemed anxious',
-      duringEvent: 'Complained of heart fluttering, looked pale',
-      afterEvent: 'Symptoms subsided after resting, returned to class',
-      observations: 'Teacher noticed child was holding chest',
-      emotionalState: 'Anxious before, scared during, relieved after',
-      activitiesPrior: 'Taking math test at school',
-      medicationsGiven: 'None needed',
-      followUpActions: 'Teacher notified, parents called'
-    }},
-    { id: '4', date: '2023-11-12', time: '16:45', type: 'dizziness', severity: 'mild', duration: '10 minutes', triggers: ['standing up quickly'], symptoms: ['lightheadedness', 'nausea'], vitals: { heartRate: 95, bloodPressure: '110/70', oxygen: 98 }, notes: 'Felt dizzy when standing up from chair', resolved: true, parentNotes: {
-      beforeEvent: 'Sitting watching TV, seemed fine',
-      duringEvent: 'Stood up quickly, felt dizzy, had to sit back down',
-      afterEvent: 'Recovered after a few minutes of rest',
-      observations: 'No loss of consciousness, just brief dizziness',
-      emotionalState: 'Normal before, briefly concerned during',
-      activitiesPrior: 'Watching TV after school',
-      medicationsGiven: 'None needed',
-      followUpActions: 'Monitored for 30 minutes, no further issues'
-    }},
-    { id: '5', date: '2023-11-10', time: '19:20', type: 'chest_pain', severity: 'moderate', duration: '20 minutes', triggers: ['emotional upset'], symptoms: ['chest tightness', 'shortness of breath'], vitals: { heartRate: 110, bloodPressure: '135/85', oxygen: 97 }, notes: 'Chest pain after argument with sibling', resolved: true, parentNotes: {
-      beforeEvent: 'Had argument with sibling, was upset and crying',
-      duringEvent: 'Complained of chest feeling tight, breathing difficulty',
-      afterEvent: 'Symptoms improved after calming down and deep breathing',
-      observations: 'Child was visibly upset before symptoms started',
-      emotionalState: 'Upset before, scared during, calm after',
-      activitiesPrior: 'Family disagreement at home',
-      medicationsGiven: 'None needed',
-      followUpActions: 'Family discussion about conflict resolution'
-    }}
-  ];
 
   const getFilteredData = () => {
     const now = new Date('2023-11-20');
@@ -334,20 +332,87 @@ export default function HealthDashboard() {
 
   const trendAnalysis = calculateTrendAnalysis();
 
+  // Sample doctor visits — dates chosen relative to cardiac events
+  const doctorVisits: DoctorVisit[] = [
+    { id: 'v1', date: '2023-11-21', doctor: 'Dr. S. Patel', visitType: 'emergency', personalNotes: 'Follow-up after cardiac arrest', doctorNotes: 'ICD implantation scheduled. Mexiletine dose reviewed.', treatment: ['ICD scheduling', 'Medication review'], medicationsChanged: true, cardiacEventsDuringVisit: 0 },
+    { id: 'v2', date: '2023-11-16', doctor: 'Dr. A. Nguyen', visitType: 'follow_up', personalNotes: 'Check-in after arrhythmia at school', doctorNotes: 'ECG reviewed. Stress management discussed.', treatment: ['ECG', 'Stress management referral'], medicationsChanged: false, cardiacEventsDuringVisit: 0 },
+    { id: 'v3', date: '2023-11-11', doctor: 'Dr. S. Patel', visitType: 'routine', personalNotes: 'Monthly cardiology check', doctorNotes: 'Propranolol dose maintained. QTc stable.', treatment: ['Holter monitor review'], medicationsChanged: false, cardiacEventsDuringVisit: 1 },
+  ];
+
   const generateVitalSignsData = () => {
-    const vitalData = filteredCardiacEvents.map(event => ({
+    const eventData = filteredCardiacEvents.map(event => ({
+      isoDate: event.date,
       date: new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       heartRate: event.vitals.heartRate || 0,
-      bloodPressure: parseInt(event.vitals.bloodPressure?.split('/')[0] || '0'),
-      temperature: 98.6
+      systolic: parseInt(event.vitals.bloodPressure?.split('/')[0] || '0'),
+      oxygen: event.vitals.oxygen || 0,
+      severity: event.severity,
+      eventType: event.type,
+      cprRequired: !!event.cprRequired,
+      hasDoctorVisit: doctorVisits.some(v => v.date === event.date),
     }));
-    
-    return vitalData
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .slice(-10);
+    return eventData.sort((a, b) => new Date(a.isoDate).getTime() - new Date(b.isoDate).getTime());
   };
 
   const vitalSignsData = generateVitalSignsData();
+
+  // Doctor visit reference lines — use same date label format as chart X axis
+  const doctorVisitLabels = doctorVisits
+    .filter(v => vitalSignsData.some(d => d.isoDate <= v.date) || vitalSignsData.some(d => d.isoDate >= v.date))
+    .map(v => ({
+      ...v,
+      dateLabel: new Date(v.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    }));
+
+  const SEVERITY_COLORS: Record<string, string> = {
+    mild: '#22C55E',
+    moderate: '#F59E0B',
+    severe: '#F97316',
+    critical: '#EF4444',
+  };
+
+  // Custom dot: colored by severity, larger ring for CPR events
+  const CustomEventDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    if (!cx || !cy || payload.heartRate === 0) return null;
+    const color = SEVERITY_COLORS[payload.severity] ?? '#6B7280';
+    const isCPR = payload.cprRequired;
+    return (
+      <g>
+        {isCPR && <circle cx={cx} cy={cy} r={16} fill={color} fillOpacity={0.15} stroke={color} strokeWidth={1.5} strokeDasharray="3 2" />}
+        <circle cx={cx} cy={cy} r={isCPR ? 9 : 6} fill={color} stroke="white" strokeWidth={2.5} />
+        {isCPR && (
+          <text x={cx} y={cy + 1} textAnchor="middle" dominantBaseline="middle" fill="white" fontSize={10} fontWeight="bold">!</text>
+        )}
+      </g>
+    );
+  };
+
+  // Custom tooltip with full event detail
+  const VitalsTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload?.length) return null;
+    const d = payload[0]?.payload;
+    const color = SEVERITY_COLORS[d?.severity] ?? '#6B7280';
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl shadow-xl p-4 text-sm min-w-[180px]">
+        <div className="font-bold text-gray-800 mb-2 text-base">{label}</div>
+        <div className="space-y-1">
+          {d?.heartRate > 0 && <div className="flex justify-between gap-4"><span className="text-gray-500">Heart Rate</span><span className="font-semibold text-blue-600">{d.heartRate} bpm</span></div>}
+          {d?.systolic > 0 && <div className="flex justify-between gap-4"><span className="text-gray-500">Blood Pressure</span><span className="font-semibold text-emerald-600">{d.systolic} mmHg</span></div>}
+          {d?.oxygen > 0 && <div className="flex justify-between gap-4"><span className="text-gray-500">Oxygen Sat</span><span className="font-semibold text-purple-600">{d.oxygen}%</span></div>}
+        </div>
+        <div className="mt-3 pt-2 border-t border-gray-100">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
+            <span className="capitalize font-medium" style={{ color }}>{d?.severity}</span>
+            <span className="text-gray-400">·</span>
+            <span className="text-gray-600 capitalize">{d?.eventType?.replace(/_/g, ' ')}</span>
+          </div>
+          {d?.cprRequired && <div className="mt-1 text-xs font-bold text-red-600 bg-red-50 rounded px-2 py-0.5 inline-block">⚠ CPR Required</div>}
+        </div>
+      </div>
+    );
+  };
 
   const medicationAdherenceData = [
     { name: 'Ibuprofen', taken: 85, missed: 15 },
@@ -443,6 +508,12 @@ export default function HealthDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      {/* Toast notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-800 text-white text-sm px-5 py-3 rounded-xl shadow-lg">
+          {toastMessage}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -626,95 +697,114 @@ export default function HealthDashboard() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Parent Notes</h3>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Before Event</label>
-                    <textarea
-                      value={newEvent.parentNotes?.beforeEvent || ''}
-                      onChange={(e) => updateParentNotes('beforeEvent', e.target.value)}
-                      rows={3}
-                      placeholder="What was happening before the event? Child's condition, activities, emotional state..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                <div className="space-y-5">
+                  <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Parent Comments</h3>
+
+                  {/* Phase 1 - Before */}
+                  <div className="border border-yellow-200 rounded-lg overflow-hidden">
+                    <div className="bg-yellow-50 px-3 py-2 flex items-center gap-2">
+                      <span className="text-yellow-700 font-bold text-sm">① LEADING UP TO EVENT</span>
+                    </div>
+                    <div className="p-3 space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">What was the child doing before the event started?</label>
+                        <textarea
+                          value={newEvent.parentNotes?.activitiesPrior || ''}
+                          onChange={(e) => updateParentNotes('activitiesPrior', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Running in PE class, sitting quietly, eating lunch..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">How was the child feeling emotionally and physically beforehand?</label>
+                        <textarea
+                          value={newEvent.parentNotes?.emotionalState || ''}
+                          onChange={(e) => updateParentNotes('emotionalState', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Anxious about test, calm and happy, seemed tired..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Any other details leading up to the event</label>
+                        <textarea
+                          value={newEvent.parentNotes?.beforeEvent || ''}
+                          onChange={(e) => updateParentNotes('beforeEvent', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Skipped medication this morning, had a large meal, hadn't slept well..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">During Event</label>
-                    <textarea
-                      value={newEvent.parentNotes?.duringEvent || ''}
-                      onChange={(e) => updateParentNotes('duringEvent', e.target.value)}
-                      rows={3}
-                      placeholder="What happened during the event? Symptoms observed, actions taken..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                  {/* Phase 2 - During */}
+                  <div className="border border-red-200 rounded-lg overflow-hidden">
+                    <div className="bg-red-50 px-3 py-2 flex items-center gap-2">
+                      <span className="text-red-700 font-bold text-sm">② DURING THE EVENT</span>
+                    </div>
+                    <div className="p-3 space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">What did you observe happening during the event?</label>
+                        <textarea
+                          value={newEvent.parentNotes?.duringEvent || ''}
+                          onChange={(e) => updateParentNotes('duringEvent', e.target.value)}
+                          rows={3}
+                          placeholder="e.g. Child collapsed, turned pale/blue, was conscious but distressed, had difficulty breathing..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">What medications or interventions were given?</label>
+                        <textarea
+                          value={newEvent.parentNotes?.medicationsGiven || ''}
+                          onChange={(e) => updateParentNotes('medicationsGiven', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Used emergency epinephrine, performed CPR, called 911, gave rescue inhaler..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">After Event</label>
-                    <textarea
-                      value={newEvent.parentNotes?.afterEvent || ''}
-                      onChange={(e) => updateParentNotes('afterEvent', e.target.value)}
-                      rows={3}
-                      placeholder="How was the child after the event? Recovery, medical response..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Activities Prior to Event</label>
-                    <textarea
-                      value={newEvent.parentNotes?.activitiesPrior || ''}
-                      onChange={(e) => updateParentNotes('activitiesPrior', e.target.value)}
-                      rows={2}
-                      placeholder="What was the child doing immediately before?"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Emotional State</label>
-                    <textarea
-                      value={newEvent.parentNotes?.emotionalState || ''}
-                      onChange={(e) => updateParentNotes('emotionalState', e.target.value)}
-                      rows={2}
-                      placeholder="Child's emotional state before and during..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Medications Given</label>
-                    <textarea
-                      value={newEvent.parentNotes?.medicationsGiven || ''}
-                      onChange={(e) => updateParentNotes('medicationsGiven', e.target.value)}
-                      rows={2}
-                      placeholder="Any medications administered during/after event..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Observations</label>
-                    <textarea
-                      value={newEvent.parentNotes?.observations || ''}
-                      onChange={(e) => updateParentNotes('observations', e.target.value)}
-                      rows={2}
-                      placeholder="Any other observations or concerns..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Follow-up Actions</label>
-                    <textarea
-                      value={newEvent.parentNotes?.followUpActions || ''}
-                      onChange={(e) => updateParentNotes('followUpActions', e.target.value)}
-                      rows={2}
-                      placeholder="What follow-up actions were taken or planned..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                  {/* Phase 3 - After */}
+                  <div className="border border-green-200 rounded-lg overflow-hidden">
+                    <div className="bg-green-50 px-3 py-2 flex items-center gap-2">
+                      <span className="text-green-700 font-bold text-sm">③ AFTER THE EVENT</span>
+                    </div>
+                    <div className="p-3 space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">How was the child after the event? Describe recovery.</label>
+                        <textarea
+                          value={newEvent.parentNotes?.afterEvent || ''}
+                          onChange={(e) => updateParentNotes('afterEvent', e.target.value)}
+                          rows={3}
+                          placeholder="e.g. Regained consciousness after 2 min, confused but responsive, transported to hospital, rested at home..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Additional observations and follow-up actions taken</label>
+                        <textarea
+                          value={newEvent.parentNotes?.observations || ''}
+                          onChange={(e) => updateParentNotes('observations', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Called Dr. Patel, scheduled follow-up appointment, notified school nurse..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Planned follow-up actions</label>
+                        <textarea
+                          value={newEvent.parentNotes?.followUpActions || ''}
+                          onChange={(e) => updateParentNotes('followUpActions', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Cardiology appointment booked, adjusted medication schedule, updated emergency plan..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -740,17 +830,133 @@ export default function HealthDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-3 space-y-6">
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Vital Signs Trend</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={vitalSignsData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="heartRate" stroke="#3B82F6" name="Heart Rate" strokeWidth={2} />
-                  <Line type="monotone" dataKey="bloodPressure" stroke="#10B981" name="Blood Pressure" strokeWidth={2} />
+              <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">Vital Signs Trend</h2>
+                  <p className="text-sm text-gray-500 mt-0.5">Cardiac events plotted chronologically with severity markers</p>
+                </div>
+                {/* Legend */}
+                <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-gray-600">
+                  <div className="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-1.5">
+                    <span className="font-semibold text-gray-500 uppercase tracking-wide mr-1">Severity:</span>
+                    {Object.entries(SEVERITY_COLORS).map(([sev, color]) => (
+                      <span key={sev} className="flex items-center gap-1">
+                        <span className="w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ background: color }} />
+                        <span className="capitalize">{sev}</span>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-1.5">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-red-400 ring-2 ring-red-200" />
+                      <span>CPR Event</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="inline-block w-4 border-t-2 border-dashed border-indigo-500" />
+                      <span>Doctor Visit</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <ResponsiveContainer width="100%" height={320}>
+                <LineChart data={vitalSignsData} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    tickLine={false}
+                    axisLine={{ stroke: '#E5E7EB' }}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    tickLine={false}
+                    axisLine={false}
+                    domain={['auto', 'auto']}
+                  />
+                  <Tooltip content={<VitalsTooltip />} />
+
+                  {/* Doctor visit reference lines */}
+                  {doctorVisitLabels.map(visit => (
+                    <ReferenceLine
+                      key={visit.id}
+                      x={visit.dateLabel}
+                      stroke="#6366F1"
+                      strokeDasharray="5 3"
+                      strokeWidth={1.5}
+                      label={{
+                        value: `Dr. ${visit.doctor.split(' ').pop()}`,
+                        position: 'insideTopRight',
+                        fill: '#6366F1',
+                        fontSize: 10,
+                        fontWeight: 600,
+                      }}
+                    />
+                  ))}
+
+                  {/* Heart Rate line with severity-colored custom dots */}
+                  <Line
+                    type="monotone"
+                    dataKey="heartRate"
+                    stroke="#3B82F6"
+                    strokeWidth={2.5}
+                    name="Heart Rate (bpm)"
+                    dot={<CustomEventDot />}
+                    activeDot={{ r: 8, stroke: '#3B82F6', strokeWidth: 2 }}
+                    connectNulls={false}
+                  />
+
+                  {/* Systolic BP line */}
+                  <Line
+                    type="monotone"
+                    dataKey="systolic"
+                    stroke="#10B981"
+                    strokeWidth={2}
+                    strokeDasharray="6 3"
+                    name="Systolic BP (mmHg)"
+                    dot={false}
+                    activeDot={{ r: 5, stroke: '#10B981', strokeWidth: 2 }}
+                  />
+
+                  {/* Oxygen saturation line */}
+                  <Line
+                    type="monotone"
+                    dataKey="oxygen"
+                    stroke="#8B5CF6"
+                    strokeWidth={2}
+                    strokeDasharray="2 4"
+                    name="O₂ Sat (%)"
+                    dot={false}
+                    activeDot={{ r: 5, stroke: '#8B5CF6', strokeWidth: 2 }}
+                  />
+
+                  <Legend
+                    verticalAlign="bottom"
+                    wrapperStyle={{ paddingTop: '16px', fontSize: '12px' }}
+                    formatter={(value) => <span style={{ color: '#374151' }}>{value}</span>}
+                  />
                 </LineChart>
               </ResponsiveContainer>
+
+              {/* Doctor visit summary below chart */}
+              {doctorVisitLabels.length > 0 && (
+                <div className="mt-4 border-t border-gray-100 pt-4">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Doctor Visits in Period</div>
+                  <div className="flex flex-wrap gap-2">
+                    {doctorVisitLabels.map(visit => (
+                      <div key={visit.id} className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2 text-xs">
+                        <span className="inline-block w-3 border-t-2 border-dashed border-indigo-500 shrink-0" />
+                        <div>
+                          <span className="font-semibold text-indigo-800">{visit.dateLabel}</span>
+                          <span className="text-indigo-600"> · {visit.doctor}</span>
+                          <span className="text-indigo-500"> · {visit.visitType.replace('_', ' ')}</span>
+                          {visit.medicationsChanged && <span className="ml-1 bg-amber-100 text-amber-700 rounded px-1 font-medium">Rx changed</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -889,24 +1095,43 @@ export default function HealthDashboard() {
                         </div>
                       )}
 
-                      {event.parentNotes && (
-                        <div className="bg-blue-50 border border-blue-200 rounded p-2 mb-2">
-                          <div className="text-sm font-bold text-blue-800">Parent Notes:</div>
-                          <div className="text-xs text-blue-700 space-y-1">
-                            {event.parentNotes.beforeEvent && (
-                              <div><strong>Before:</strong> {event.parentNotes.beforeEvent}</div>
+                      <div className="mt-3 border-t border-current border-opacity-20 pt-3">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-semibold">Parent Comments</span>
+                          <button
+                            onClick={() => handleOpenEditNotes(event)}
+                            className="text-xs px-2 py-1 bg-white bg-opacity-60 border border-current border-opacity-30 rounded hover:bg-opacity-90 transition-colors font-medium"
+                          >
+                            {event.parentNotes?.beforeEvent || event.parentNotes?.duringEvent || event.parentNotes?.afterEvent ? 'Edit Notes' : '+ Add Notes'}
+                          </button>
+                        </div>
+                        {event.parentNotes?.beforeEvent || event.parentNotes?.duringEvent || event.parentNotes?.afterEvent ? (
+                          <div className="space-y-1 text-xs">
+                            {event.parentNotes?.beforeEvent && (
+                              <div className="flex gap-1">
+                                <span className="font-semibold text-yellow-700 shrink-0">Before:</span>
+                                <span>{event.parentNotes.beforeEvent}</span>
+                              </div>
                             )}
-                            {event.parentNotes.duringEvent && (
-                              <div><strong>During:</strong> {event.parentNotes.duringEvent}</div>
+                            {event.parentNotes?.duringEvent && (
+                              <div className="flex gap-1">
+                                <span className="font-semibold text-red-700 shrink-0">During:</span>
+                                <span>{event.parentNotes.duringEvent}</span>
+                              </div>
                             )}
-                            {event.parentNotes.afterEvent && (
-                              <div><strong>After:</strong> {event.parentNotes.afterEvent}</div>
+                            {event.parentNotes?.afterEvent && (
+                              <div className="flex gap-1">
+                                <span className="font-semibold text-green-700 shrink-0">After:</span>
+                                <span>{event.parentNotes.afterEvent}</span>
+                              </div>
                             )}
                           </div>
-                        </div>
-                      )}
-                      
-                      <div className="text-sm italic">"{event.notes}"</div>
+                        ) : (
+                          <p className="text-xs opacity-60 italic">No comments yet. Click &quot;+ Add Notes&quot; to document what happened before, during, and after this event.</p>
+                        )}
+                      </div>
+
+                      {event.notes && <div className="text-sm italic mt-2 opacity-75">"{event.notes}"</div>}
                     </div>
                   );
                 })}
@@ -1066,6 +1291,143 @@ export default function HealthDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Edit Notes Modal */}
+      {editingEventId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-1">Event Comments</h2>
+              <p className="text-sm text-gray-500 mb-6">Document what happened before, during, and after this event to help your care team.</p>
+
+              {/* Phase 1 - Before */}
+              <div className="border border-yellow-200 rounded-lg overflow-hidden mb-4">
+                <div className="bg-yellow-50 px-4 py-3">
+                  <div className="font-bold text-yellow-800">① LEADING UP TO THE EVENT</div>
+                  <div className="text-xs text-yellow-600 mt-0.5">What was happening in the hours or minutes before symptoms began?</div>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Activities before the event</label>
+                    <textarea
+                      value={editingNotes?.activitiesPrior || ''}
+                      onChange={(e) => setEditingNotes(n => ({ ...n!, activitiesPrior: e.target.value }))}
+                      rows={2}
+                      placeholder="e.g. Running in PE class, sitting quietly, eating lunch..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Child's emotional and physical state beforehand</label>
+                    <textarea
+                      value={editingNotes?.emotionalState || ''}
+                      onChange={(e) => setEditingNotes(n => ({ ...n!, emotionalState: e.target.value }))}
+                      rows={2}
+                      placeholder="e.g. Anxious about test, calm and happy, seemed tired..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Other relevant details leading up to the event</label>
+                    <textarea
+                      value={editingNotes?.beforeEvent || ''}
+                      onChange={(e) => setEditingNotes(n => ({ ...n!, beforeEvent: e.target.value }))}
+                      rows={2}
+                      placeholder="e.g. Skipped medication, had a large meal, hadn't slept well..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Phase 2 - During */}
+              <div className="border border-red-200 rounded-lg overflow-hidden mb-4">
+                <div className="bg-red-50 px-4 py-3">
+                  <div className="font-bold text-red-800">② DURING THE EVENT</div>
+                  <div className="text-xs text-red-600 mt-0.5">What did you observe while the event was occurring?</div>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">What you observed during the event</label>
+                    <textarea
+                      value={editingNotes?.duringEvent || ''}
+                      onChange={(e) => setEditingNotes(n => ({ ...n!, duringEvent: e.target.value }))}
+                      rows={3}
+                      placeholder="e.g. Child collapsed, turned pale/blue, was conscious but distressed, had difficulty breathing..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-red-400 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Medications or interventions given during the event</label>
+                    <textarea
+                      value={editingNotes?.medicationsGiven || ''}
+                      onChange={(e) => setEditingNotes(n => ({ ...n!, medicationsGiven: e.target.value }))}
+                      rows={2}
+                      placeholder="e.g. Used emergency epinephrine, performed CPR, called 911..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-red-400 text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Phase 3 - After */}
+              <div className="border border-green-200 rounded-lg overflow-hidden mb-6">
+                <div className="bg-green-50 px-4 py-3">
+                  <div className="font-bold text-green-800">③ AFTER THE EVENT</div>
+                  <div className="text-xs text-green-600 mt-0.5">How did the child recover and what actions were taken?</div>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Child's recovery and condition after the event</label>
+                    <textarea
+                      value={editingNotes?.afterEvent || ''}
+                      onChange={(e) => setEditingNotes(n => ({ ...n!, afterEvent: e.target.value }))}
+                      rows={3}
+                      placeholder="e.g. Regained consciousness after 2 min, confused but responsive, transported to hospital..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Additional observations</label>
+                    <textarea
+                      value={editingNotes?.observations || ''}
+                      onChange={(e) => setEditingNotes(n => ({ ...n!, observations: e.target.value }))}
+                      rows={2}
+                      placeholder="e.g. Classmates reported no warning signs, child seems traumatized..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Follow-up actions taken or planned</label>
+                    <textarea
+                      value={editingNotes?.followUpActions || ''}
+                      onChange={(e) => setEditingNotes(n => ({ ...n!, followUpActions: e.target.value }))}
+                      rows={2}
+                      placeholder="e.g. Called Dr. Patel, scheduled follow-up, updated emergency plan..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400 text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setEditingEventId(null)}
+                  className="px-5 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEditedNotes}
+                  className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                >
+                  Save Comments
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
