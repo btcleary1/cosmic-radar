@@ -51,7 +51,7 @@ body {
 }
 
 /* Ensure touch targets are at least 44px for accessibility */
-button, a, input, select, textarea {
+button, input, select, textarea {
   min-height: var(--touch-target-min);
 }
 
