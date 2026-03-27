@@ -29,16 +29,13 @@
 }
 
 html {
+  /* Use clip (not hidden) — hidden creates a scroll container that breaks
+     2-finger trackpad and touch scroll on Chrome/Chromebook */
+  overflow-x: clip;
   /* Prevent font scaling on orientation change (iOS) */
   -webkit-text-size-adjust: 100%;
   /* Smooth scrolling */
   scroll-behavior: smooth;
-}
-
-html {
-  /* Use clip (not hidden) — hidden creates a scroll container that breaks
-     2-finger trackpad and touch scroll on Chrome/Chromebook */
-  overflow-x: clip;
 }
 
 body {
