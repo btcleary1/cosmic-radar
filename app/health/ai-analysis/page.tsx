@@ -109,7 +109,7 @@ export default function AIAnalysisPage() {
               value={focusArea}
               onChange={e => setFocusArea(e.target.value)}
               placeholder="e.g. Why do events happen during emotional stress? What genetic conditions fit? Is the current medication right?"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm text-gray-900 bg-white"
             />
           </div>
           <button
