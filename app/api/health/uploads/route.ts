@@ -2,11 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-const UPLOAD_DIR = join(process.cwd(), 'public', 'health-uploads');
+// Store outside public/ so files are not directly accessible via URL
+const UPLOAD_DIR = join(process.cwd(), 'private-uploads', 'health');
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     if (!existsSync(UPLOAD_DIR)) {
       await mkdir(UPLOAD_DIR, { recursive: true });
     }
@@ -46,7 +54,7 @@ export async function POST(req: NextRequest) {
       note,
       size: file.size,
       type: file.type,
-      url: `/health-uploads/${filename}`,
+      url: `/api/health/files/${filename}`,
       uploadedAt: new Date().toISOString(),
     };
 

@@ -18,6 +18,7 @@ function SignInForm() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [hasGoogleProvider, setHasGoogleProvider] = useState(false);
+  const [consentAccepted, setConsentAccepted] = useState(false);
 
   // Check if Google provider is available
   useEffect(() => {
@@ -76,6 +77,10 @@ function SignInForm() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!consentAccepted) {
+      setError('You must accept the Terms of Service and Privacy Policy to create an account.');
+      return;
+    }
     setIsLoading(true);
     setError('');
 
@@ -286,9 +291,28 @@ function SignInForm() {
               )}
             </div>
 
+            {mode === 'register' && (
+              <div className="flex items-start gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <input
+                  id="consent"
+                  type="checkbox"
+                  checked={consentAccepted}
+                  onChange={(e) => setConsentAccepted(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-green-600 cursor-pointer shrink-0"
+                />
+                <label htmlFor="consent" className="text-xs text-gray-700 leading-relaxed cursor-pointer">
+                  I accept full responsibility for all health data I upload. I understand this App is{' '}
+                  <strong>not a medical device</strong> and AI analysis is not medical advice. I agree to the{' '}
+                  <a href="/health/terms" target="_blank" className="text-blue-600 underline">Terms of Service</a>
+                  {' '}and{' '}
+                  <a href="/health/privacy" target="_blank" className="text-blue-600 underline">Privacy Policy</a>.
+                </label>
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || (mode === 'register' && !consentAccepted)}
               className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Processing...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
@@ -298,7 +322,10 @@ function SignInForm() {
 
         <div className="mt-6 text-center text-sm text-text-secondary">
           <p>
-            By signing in, you agree to our Terms of Service and Privacy Policy
+            By signing in, you agree to our{' '}
+            <a href="/health/terms" target="_blank" className="underline hover:text-text-primary">Terms of Service</a>
+            {' '}and{' '}
+            <a href="/health/privacy" target="_blank" className="underline hover:text-text-primary">Privacy Policy</a>
           </p>
         </div>
 

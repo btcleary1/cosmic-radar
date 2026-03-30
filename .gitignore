@@ -42,3 +42,7 @@ prisma/migrations
 .cache/
 windsurf-landscaping/
 node_modules
+
+# Private health uploads — never commit patient files
+/private-uploads/
+/public/health-uploads/

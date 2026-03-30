@@ -87,6 +87,16 @@ export default function AIAnalysisPage() {
       <HealthHeader />
       <div className="max-w-4xl mx-auto px-4 py-8">
 
+        {/* Medical Disclaimer Banner */}
+        <div className="mb-6 flex gap-3 bg-amber-50 border border-amber-300 rounded-xl p-4">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="text-sm text-amber-800">
+            <strong>Not Medical Advice.</strong> AI-generated analysis is for informational and research purposes only.
+            It does not constitute a diagnosis or clinical recommendation and must not replace the judgment of a licensed healthcare provider.
+            Always consult your physician for medical decisions. In an emergency, call <strong>911</strong> immediately.
+          </div>
+        </div>
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
